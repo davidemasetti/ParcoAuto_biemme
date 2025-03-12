@@ -1,0 +1,102 @@
+echo '🚀 Configurazione in corso...' && \
+pip install fastapi uvicorn sqlalchemy requests && \
+echo '🎉 Dipendenze installate!' && \
+touch main.py && \
+cat <<EOF > main.py
+from fastapi import FastAPI, Depends
+from sqlalchemy import create_engine, Column, Integer, String, Float
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker, Session
+import xml.etree.ElementTree as ET
+import requests
+
+# Database setup
+DATABASE_URL = "sqlite:///./cars.db"  # Cambia in PostgreSQL per la produzione
+engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+Base = declarative_base()
+
+# Modello Auto
+class Car(Base):
+    __tablename__ = "cars"
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String, index=True)
+    image = Column(String)
+    images = Column(String)  # JSON list of images
+    price = Column(Float)
+    year = Column(Integer)
+    km = Column(Integer)
+    fuel_type = Column(String)
+    transmission = Column(String)
+    body_type = Column(String)
+    registration_date = Column(String)
+    engine_power = Column(String)
+    seats = Column(Integer)
+    doors = Column(Integer)
+    color = Column(String)
+    condition = Column(String)
+    options = Column(String)  # JSON list of options
+    description = Column(String)
+
+Base.metadata.create_all(bind=engine)
+
+# FastAPI app
+app = FastAPI()
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+@app.get("/")
+def home():
+    return {"message": "API Parco Auto attiva 🚗"}
+
+@app.get("/cars/")
+def get_cars(db: Session = Depends(get_db)):
+    return db.query(Car).all()
+
+@app.get("/cars/{car_id}")
+def get_car(car_id: int, db: Session = Depends(get_db)):
+    car = db.query(Car).filter(Car.id == car_id).first()
+    if car is None:
+        return {"error": "Car not found"}
+    return car
+
+@app.post("/import-xml/")
+def import_xml(db: Session = Depends(get_db)):
+    xml_url = "http://xml.gestionaleauto.com/sarmaservice/export_gestionaleauto.php"
+    response = requests.get(xml_url)
+    if response.status_code != 200:
+        return {"error": "Errore nel recupero dell'XML"}
+    
+    root = ET.fromstring(response.content)
+    for car in root.findall(".//car"):
+        new_car = Car(
+            title=car.find("title").text,
+            image=car.find("image").text,
+            images=car.find("images").text if car.find("images") is not None else "[]",
+            price=float(car.find("price").text),
+            year=int(car.find("year").text),
+            km=int(car.find("km").text),
+            fuel_type=car.find("fuel_type").text,
+            transmission=car.find("transmission").text,
+            body_type=car.find("body_type").text if car.find("body_type") is not None else "",
+            registration_date=car.find("registration_date").text if car.find("registration_date") is not None else "",
+            engine_power=car.find("engine_power").text if car.find("engine_power") is not None else "",
+            seats=int(car.find("seats").text) if car.find("seats") is not None else 0,
+            doors=int(car.find("doors").text) if car.find("doors") is not None else 0,
+            color=car.find("color").text if car.find("color") is not None else "",
+            condition=car.find("condition").text if car.find("condition") is not None else "",
+            options=car.find("options").text if car.find("options") is not None else "[]",
+            description=car.find("description").text,
+        )
+        db.add(new_car)
+    db.commit()
+    return {"message": "Auto importate con successo 🚀"}
+
+EOF
+echo '✅ Setup completato! Ora esegui:'
+echo 'uvicorn main:app --host=0.0.0.0 --port=8000 --reload'
