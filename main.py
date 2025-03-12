@@ -117,8 +117,9 @@ def import_xml():
                 # Extract images
                 images = []
                 for img in car_elem.findall("images/image"):
-                    if img.find("big") is not None and img.find("big").text:
-                        images.append(img.find("big").text)
+                    big_img = img.find("big")
+                    if big_img is not None and big_img.text:
+                        images.append(big_img.text)
 
                 # Extract options
                 options = []
@@ -127,11 +128,19 @@ def import_xml():
                         options.append(opt.text)
 
                 # Get model info
-                make = car_elem.find("model/make")
-                model = car_elem.find("model/model")
-                version = car_elem.find("model/version")
+                model_elem = car_elem.find("model")
+                if model_elem is None:
+                    logger.warning("Skipping car: Missing model element")
+                    errors_count += 1
+                    continue
 
-                if not all([make, model, version]):
+                make = model_elem.find("make")
+                model = model_elem.find("model")
+                version = model_elem.find("version")
+
+                if not all([make is not None and make.text, 
+                          model is not None and model.text,
+                          version is not None and version.text]):
                     logger.warning("Skipping car: Missing make/model/version info")
                     errors_count += 1
                     continue
@@ -141,26 +150,25 @@ def import_xml():
                 # Get numeric values safely
                 try:
                     price = float(car_elem.find("customers_price").text)
-                except (ValueError, AttributeError):
-                    logger.warning(f"Invalid price for car {title}")
+                except (ValueError, AttributeError) as e:
+                    logger.warning(f"Invalid price for car {title}: {e}")
                     price = 0.0
 
                 try:
-                    registration_date = car_elem.find("registration_date").text
-                    if registration_date:
-                        year = int(registration_date.split('/')[-1])
-                        if year < 1900 or year > 2100:
-                            raise ValueError(f"Invalid year: {year}")
+                    reg_date = car_elem.find("registration_date")
+                    if reg_date is not None and reg_date.text:
+                        # Formato: MM/YYYY
+                        year = int(reg_date.text.split('/')[-1])
                     else:
-                        raise ValueError("Empty registration date")
-                except (ValueError, AttributeError, IndexError) as e:
-                    logger.warning(f"Invalid year for car {title}: {str(e)}")
+                        year = 0
+                except (ValueError, IndexError) as e:
+                    logger.warning(f"Invalid registration date for car {title}: {e}")
                     year = 0
 
                 try:
                     km = int(car_elem.find("km").text)
-                except (ValueError, AttributeError):
-                    logger.warning(f"Invalid km for car {title}")
+                except (ValueError, AttributeError) as e:
+                    logger.warning(f"Invalid km for car {title}: {e}")
                     km = 0
 
                 # Create car with validated data
@@ -171,15 +179,15 @@ def import_xml():
                     price=price,
                     year=year,
                     km=km,
-                    fuel_type=car_elem.find("fuel").text if car_elem.find("fuel") is not None else "",
+                    fuel_type=model_elem.find("fuel").text if model_elem.find("fuel") is not None else "",
                     transmission=car_elem.find("gearbox").text if car_elem.find("gearbox") is not None else "",
-                    body_type=car_elem.find("model/body").text if car_elem.find("model/body") is not None else "",
+                    body_type=model_elem.find("body").text if model_elem.find("body") is not None else "",
                     registration_date=car_elem.find("registration_date").text if car_elem.find("registration_date") is not None else "",
-                    engine_power=car_elem.find("model/kwatt").text if car_elem.find("model/kwatt") is not None else "",
+                    engine_power=model_elem.find("kwatt").text if model_elem.find("kwatt") is not None else "",
                     seats=int(car_elem.find("seats").text) if car_elem.find("seats") is not None and car_elem.find("seats").text else 0,
                     doors=int(car_elem.find("doors").text) if car_elem.find("doors") is not None and car_elem.find("doors").text else 0,
                     color=car_elem.find("exterior/color").text if car_elem.find("exterior/color") is not None else "",
-                    condition=car_elem.find("condition").text if car_elem.find("condition") is not None else "",
+                    condition=car_elem.find("usage").text if car_elem.find("usage") is not None else "",
                     options=json.dumps(options),
                     description=car_elem.find("formatted_additional_informations").text if car_elem.find("formatted_additional_informations") is not None else ""
                 )
