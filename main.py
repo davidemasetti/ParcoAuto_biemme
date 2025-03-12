@@ -99,60 +99,81 @@ def get_car(car_id):
 def import_xml():
     try:
         xml_url = "http://xml.gestionaleauto.com/sarmaservice/export_gestionaleauto.php"
+        logger.info(f"Fetching XML from {xml_url}")
         response = requests.get(xml_url, timeout=10)
         response.raise_for_status()
 
+        logger.debug(f"XML Response: {response.text[:1000]}...")  # Log first 1000 chars of response
         root = ET.fromstring(response.content)
         imported_count = 0
+        errors_count = 0
 
         for car_elem in root.findall(".//car"):
             try:
-                # Get values with safe fallbacks
-                def get_text(elem, path, default=""):
-                    node = elem.find(path)
-                    return node.text if node is not None and node.text is not None else default
+                # Log raw XML data for debugging
+                car_xml = ET.tostring(car_elem, encoding='unicode')
+                logger.debug(f"Processing car XML: {car_xml}")
 
-                def get_int(elem, path, default=0):
-                    text = get_text(elem, path, str(default))
-                    try:
-                        return int(text)
-                    except (ValueError, TypeError):
-                        return default
+                # Get required fields with strict validation
+                title = car_elem.find("title")
+                if title is None or not title.text:
+                    logger.warning("Skipping car: Missing title")
+                    errors_count += 1
+                    continue
 
-                def get_float(elem, path, default=0.0):
-                    text = get_text(elem, path, str(default))
-                    try:
-                        return float(text)
-                    except (ValueError, TypeError):
-                        return default
+                price_elem = car_elem.find("price")
+                try:
+                    price = float(price_elem.text) if price_elem is not None and price_elem.text else 0.0
+                except (ValueError, AttributeError):
+                    logger.warning(f"Invalid price for car {title.text}: {price_elem.text if price_elem is not None else 'None'}")
+                    price = 0.0
 
+                year_elem = car_elem.find("year")
+                try:
+                    year = int(year_elem.text) if year_elem is not None and year_elem.text else 0
+                    if year < 1900 or year > 2100:
+                        logger.warning(f"Invalid year for car {title.text}: {year}")
+                        year = 0
+                except (ValueError, AttributeError):
+                    logger.warning(f"Invalid year for car {title.text}: {year_elem.text if year_elem is not None else 'None'}")
+                    year = 0
+
+                # Create car with validated data
                 new_car = Car(
-                    title=get_text(car_elem, "title"),
-                    image=get_text(car_elem, "image"),
-                    images=get_text(car_elem, "images", "[]"),
-                    price=get_float(car_elem, "price"),
-                    year=get_int(car_elem, "year"),
-                    km=get_int(car_elem, "km"),
-                    fuel_type=get_text(car_elem, "fuel_type"),
-                    transmission=get_text(car_elem, "transmission"),
-                    body_type=get_text(car_elem, "body_type"),
-                    registration_date=get_text(car_elem, "registration_date"),
-                    engine_power=get_text(car_elem, "engine_power"),
-                    seats=get_int(car_elem, "seats"),
-                    doors=get_int(car_elem, "doors"),
-                    color=get_text(car_elem, "color"),
-                    condition=get_text(car_elem, "condition"),
-                    options=get_text(car_elem, "options", "[]"),
-                    description=get_text(car_elem, "description")
+                    title=title.text,
+                    image=car_elem.find("image").text if car_elem.find("image") is not None else "",
+                    images=car_elem.find("images").text if car_elem.find("images") is not None else "[]",
+                    price=price,
+                    year=year,
+                    km=int(car_elem.find("km").text) if car_elem.find("km") is not None and car_elem.find("km").text else 0,
+                    fuel_type=car_elem.find("fuel_type").text if car_elem.find("fuel_type") is not None else "",
+                    transmission=car_elem.find("transmission").text if car_elem.find("transmission") is not None else "",
+                    body_type=car_elem.find("body_type").text if car_elem.find("body_type") is not None else "",
+                    registration_date=car_elem.find("registration_date").text if car_elem.find("registration_date") is not None else "",
+                    engine_power=car_elem.find("engine_power").text if car_elem.find("engine_power") is not None else "",
+                    seats=int(car_elem.find("seats").text) if car_elem.find("seats") is not None and car_elem.find("seats").text else 0,
+                    doors=int(car_elem.find("doors").text) if car_elem.find("doors") is not None and car_elem.find("doors").text else 0,
+                    color=car_elem.find("color").text if car_elem.find("color") is not None else "",
+                    condition=car_elem.find("condition").text if car_elem.find("condition") is not None else "",
+                    options=car_elem.find("options").text if car_elem.find("options") is not None else "[]",
+                    description=car_elem.find("description").text if car_elem.find("description") is not None else ""
                 )
+
+                logger.info(f"Importing car: {new_car.title} (Year: {new_car.year}, Price: {new_car.price})")
                 db.session.add(new_car)
                 imported_count += 1
+
             except Exception as e:
                 logger.error(f"Error importing car: {e}")
+                errors_count += 1
                 continue
 
         db.session.commit()
-        return jsonify({"message": f"Successfully imported {imported_count} cars"})
+        message = f"Successfully imported {imported_count} cars"
+        if errors_count > 0:
+            message += f" ({errors_count} errors encountered)"
+        logger.info(message)
+        return jsonify({"message": message})
 
     except requests.RequestException as e:
         logger.error(f"Error fetching XML: {e}")
