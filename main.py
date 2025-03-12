@@ -1,36 +1,21 @@
 import logging
 import json
 import os
-from flask import Flask, render_template, jsonify, request
-from flask_sqlalchemy import SQLAlchemy
+from flask import render_template, jsonify, request
 from sqlalchemy import or_
 import xml.etree.ElementTree as ET
 import requests
+from app import create_app, db
 from models import Car
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
+    level=logging.DEBUG,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-# Create Flask app
-app = Flask(__name__)
-app.secret_key = os.environ.get("SESSION_SECRET")
-
-# Database configuration
-DATABASE_URL = os.environ.get("DATABASE_URL")
-if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
-    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
-
-app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
-app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
-    "pool_recycle": 300,
-    "pool_pre_ping": True,
-}
-
-db = SQLAlchemy(app)
+app = create_app()
 
 # Routes
 @app.route('/')
@@ -43,64 +28,72 @@ def car_detail(car_id):
 
 @app.route('/api/cars/')
 def get_cars():
-    skip = request.args.get('skip', 0, type=int)
-    limit = request.args.get('limit', 100, type=int)
-    search = request.args.get('search', None, type=str)
+    try:
+        skip = request.args.get('skip', 0, type=int)
+        limit = request.args.get('limit', 100, type=int)
+        search = request.args.get('search', None, type=str)
 
-    query = Car.query
-    if search:
-        search_filter = or_(
-            Car.title.ilike(f"%{search}%"),
-            Car.description.ilike(f"%{search}%"),
-            Car.color.ilike(f"%{search}%")
-        )
-        query = query.filter(search_filter)
+        query = Car.query
+        if search:
+            search_filter = or_(
+                Car.title.ilike(f"%{search}%"),
+                Car.description.ilike(f"%{search}%"),
+                Car.color.ilike(f"%{search}%")
+            )
+            query = query.filter(search_filter)
 
-    cars = query.offset(skip).limit(limit).all()
-    return jsonify([{
-        'id': car.id,
-        'title': car.title,
-        'image': car.image,
-        'images': car.images,
-        'price': car.price,
-        'year': car.year,
-        'km': car.km,
-        'fuel_type': car.fuel_type,
-        'transmission': car.transmission,
-        'body_type': car.body_type,
-        'registration_date': car.registration_date,
-        'engine_power': car.engine_power,
-        'seats': car.seats,
-        'doors': car.doors,
-        'color': car.color,
-        'condition': car.condition,
-        'options': car.options,
-        'description': car.description
-    } for car in cars])
+        cars = query.offset(skip).limit(limit).all()
+        return jsonify([{
+            'id': car.id,
+            'title': car.title,
+            'image': car.image,
+            'images': car.images,
+            'price': car.price,
+            'year': car.year,
+            'km': car.km,
+            'fuel_type': car.fuel_type,
+            'transmission': car.transmission,
+            'body_type': car.body_type,
+            'registration_date': car.registration_date,
+            'engine_power': car.engine_power,
+            'seats': car.seats,
+            'doors': car.doors,
+            'color': car.color,
+            'condition': car.condition,
+            'options': car.options,
+            'description': car.description
+        } for car in cars])
+    except Exception as e:
+        logger.error(f"Error getting cars: {e}")
+        return jsonify({"error": "Internal server error"}), 500
 
 @app.route('/api/cars/<int:car_id>')
 def get_car(car_id):
-    car = Car.query.get_or_404(car_id)
-    return jsonify({
-        'id': car.id,
-        'title': car.title,
-        'image': car.image,
-        'images': car.images,
-        'price': car.price,
-        'year': car.year,
-        'km': car.km,
-        'fuel_type': car.fuel_type,
-        'transmission': car.transmission,
-        'body_type': car.body_type,
-        'registration_date': car.registration_date,
-        'engine_power': car.engine_power,
-        'seats': car.seats,
-        'doors': car.doors,
-        'color': car.color,
-        'condition': car.condition,
-        'options': car.options,
-        'description': car.description
-    })
+    try:
+        car = Car.query.get_or_404(car_id)
+        return jsonify({
+            'id': car.id,
+            'title': car.title,
+            'image': car.image,
+            'images': car.images,
+            'price': car.price,
+            'year': car.year,
+            'km': car.km,
+            'fuel_type': car.fuel_type,
+            'transmission': car.transmission,
+            'body_type': car.body_type,
+            'registration_date': car.registration_date,
+            'engine_power': car.engine_power,
+            'seats': car.seats,
+            'doors': car.doors,
+            'color': car.color,
+            'condition': car.condition,
+            'options': car.options,
+            'description': car.description
+        })
+    except Exception as e:
+        logger.error(f"Error getting car {car_id}: {e}")
+        return jsonify({"error": "Internal server error"}), 500
 
 @app.route('/api/import-xml/', methods=['POST'])
 def import_xml():
@@ -114,24 +107,43 @@ def import_xml():
 
         for car_elem in root.findall(".//car"):
             try:
+                # Get values with safe fallbacks
+                def get_text(elem, path, default=""):
+                    node = elem.find(path)
+                    return node.text if node is not None and node.text is not None else default
+
+                def get_int(elem, path, default=0):
+                    text = get_text(elem, path, str(default))
+                    try:
+                        return int(text)
+                    except (ValueError, TypeError):
+                        return default
+
+                def get_float(elem, path, default=0.0):
+                    text = get_text(elem, path, str(default))
+                    try:
+                        return float(text)
+                    except (ValueError, TypeError):
+                        return default
+
                 new_car = Car(
-                    title=car_elem.find("title").text or "",
-                    image=car_elem.find("image").text or "",
-                    images=car_elem.find("images").text if car_elem.find("images") is not None else "[]",
-                    price=float(car_elem.find("price").text or 0),
-                    year=int(car_elem.find("year").text or 0),
-                    km=int(car_elem.find("km").text or 0),
-                    fuel_type=car_elem.find("fuel_type").text or "",
-                    transmission=car_elem.find("transmission").text or "",
-                    body_type=car_elem.find("body_type").text if car_elem.find("body_type") is not None else "",
-                    registration_date=car_elem.find("registration_date").text if car_elem.find("registration_date") is not None else "",
-                    engine_power=car_elem.find("engine_power").text if car_elem.find("engine_power") is not None else "",
-                    seats=int(car_elem.find("seats").text or 0) if car_elem.find("seats") is not None else 0,
-                    doors=int(car_elem.find("doors").text or 0) if car_elem.find("doors") is not None else 0,
-                    color=car_elem.find("color").text if car_elem.find("color") is not None else "",
-                    condition=car_elem.find("condition").text if car_elem.find("condition") is not None else "",
-                    options=car_elem.find("options").text if car_elem.find("options") is not None else "[]",
-                    description=car_elem.find("description").text if car_elem.find("description") is not None else "",
+                    title=get_text(car_elem, "title"),
+                    image=get_text(car_elem, "image"),
+                    images=get_text(car_elem, "images", "[]"),
+                    price=get_float(car_elem, "price"),
+                    year=get_int(car_elem, "year"),
+                    km=get_int(car_elem, "km"),
+                    fuel_type=get_text(car_elem, "fuel_type"),
+                    transmission=get_text(car_elem, "transmission"),
+                    body_type=get_text(car_elem, "body_type"),
+                    registration_date=get_text(car_elem, "registration_date"),
+                    engine_power=get_text(car_elem, "engine_power"),
+                    seats=get_int(car_elem, "seats"),
+                    doors=get_int(car_elem, "doors"),
+                    color=get_text(car_elem, "color"),
+                    condition=get_text(car_elem, "condition"),
+                    options=get_text(car_elem, "options", "[]"),
+                    description=get_text(car_elem, "description")
                 )
                 db.session.add(new_car)
                 imported_count += 1
