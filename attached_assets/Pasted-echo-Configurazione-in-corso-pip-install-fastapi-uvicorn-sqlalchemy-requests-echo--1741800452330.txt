@@ -1,0 +1,137 @@
+echo '🚀 Configurazione in corso...' && \
+pip install fastapi uvicorn sqlalchemy requests && \
+echo '🎉 Dipendenze installate!' && \
+touch main.py && \
+cat <<EOF > main.py
+from fastapi import FastAPI, Depends
+from sqlalchemy import create_engine, Column, Integer, String, Float
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker, Session
+import xml.etree.ElementTree as ET
+import requests
+import json
+
+# Database setup
+DATABASE_URL = "sqlite:///./cars.db"  # Cambia in PostgreSQL per la produzione
+engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+Base = declarative_base()
+
+# Modello Auto
+class Car(Base):
+    __tablename__ = "cars"
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String, index=True)
+    make = Column(String)
+    model = Column(String)
+    version = Column(String)
+    body_type = Column(String)
+    fuel_type = Column(String)
+    transmission = Column(String)
+    traction = Column(String)
+    engine_power = Column(String)
+    cc = Column(Integer)
+    cylinders = Column(Integer)
+    doors = Column(Integer)
+    seats = Column(Integer)
+    weight = Column(Integer)
+    emission_class = Column(String)
+    emission_co2 = Column(Float)
+    consumption = Column(String)  # JSON object (urban, outer, combined)
+    color = Column(String)
+    paint = Column(String)
+    interior_material = Column(String)
+    registration_date = Column(String)
+    km = Column(Integer)
+    price = Column(Float)
+    previous_owners = Column(Integer)
+    warranty = Column(String)
+    warranty_months = Column(Integer)
+    options = Column(String)  # JSON list
+    description = Column(String)
+    images = Column(String)  # JSON list of images
+
+Base.metadata.create_all(bind=engine)
+
+# FastAPI app
+app = FastAPI()
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+@app.get("/")
+def home():
+    return {"message": "API Parco Auto attiva 🚗"}
+
+@app.get("/cars/")
+def get_cars(db: Session = Depends(get_db)):
+    return db.query(Car).all()
+
+@app.get("/cars/{car_id}")
+def get_car(car_id: int, db: Session = Depends(get_db)):
+    car = db.query(Car).filter(Car.id == car_id).first()
+    if car is None:
+        return {"error": "Car not found"}
+    return car
+
+@app.post("/import-xml/")
+def import_xml(db: Session = Depends(get_db)):
+    xml_url = "http://xml.gestionaleauto.com/sarmaservice/export_gestionaleauto.php"
+    response = requests.get(xml_url)
+    if response.status_code != 200:
+        return {"error": "Errore nel recupero dell'XML"}
+    
+    root = ET.fromstring(response.content)
+    for car in root.findall(".//car"):
+        consumption = {
+            "urban": car.find("model/consumption/urban").text if car.find("model/consumption/urban") is not None else "",
+            "outer": car.find("model/consumption/outer").text if car.find("model/consumption/outer") is not None else "",
+            "combined": car.find("model/consumption/combined").text if car.find("model/consumption/combined") is not None else ""
+        }
+        
+        images = [img.find("big").text for img in car.findall("images/image") if img.find("big") is not None]
+        
+        options = [opt.text for opt in car.findall("options/standard_option")]
+        
+        new_car = Car(
+            title=f"{car.find('model/make').text} {car.find('model/model').text} {car.find('model/version').text}",
+            make=car.find("model/make").text,
+            model=car.find("model/model").text,
+            version=car.find("model/version").text,
+            body_type=car.find("model/body").text,
+            fuel_type=car.find("fuel").text,
+            transmission=car.find("gearbox").text,
+            traction=car.find("traction").text,
+            engine_power=car.find("model/kwatt").text,
+            cc=int(car.find("model/cc").text),
+            cylinders=int(car.find("model/cylinders").text),
+            doors=int(car.find("doors").text),
+            seats=int(car.find("seats").text),
+            weight=int(car.find("weight").text),
+            emission_class=car.find("model/emission_class").text,
+            emission_co2=float(car.find("model/emission_co2").text),
+            consumption=json.dumps(consumption),
+            color=car.find("exterior/color").text,
+            paint=car.find("exterior/paint").text,
+            interior_material=car.find("interior/make").text,
+            registration_date=car.find("registration_date").text,
+            km=int(car.find("km").text),
+            price=float(car.find("customers_price").text),
+            previous_owners=int(car.find("previous_owners").text),
+            warranty=car.find("warrenty_type").text,
+            warranty_months=int(car.find("warrenty_months").text),
+            options=json.dumps(options),
+            description=car.find("formatted_additional_informations").text,
+            images=json.dumps(images)
+        )
+        db.add(new_car)
+    db.commit()
+    return {"message": "Auto importate con successo 🚀"}
+
+EOF
+echo '✅ Setup completato! Ora esegui:'
+echo 'uvicorn main:app --host=0.0.0.0 --port=8000 --reload'

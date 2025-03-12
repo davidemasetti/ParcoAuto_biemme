@@ -114,49 +114,74 @@ def import_xml():
                 car_xml = ET.tostring(car_elem, encoding='unicode')
                 logger.debug(f"Processing car XML: {car_xml}")
 
-                # Get required fields with strict validation
-                title = car_elem.find("title")
-                if title is None or not title.text:
-                    logger.warning("Skipping car: Missing title")
+                # Extract images
+                images = []
+                for img in car_elem.findall("images/image"):
+                    if img.find("big") is not None and img.find("big").text:
+                        images.append(img.find("big").text)
+
+                # Extract options
+                options = []
+                for opt in car_elem.findall("options/standard_option"):
+                    if opt is not None and opt.text:
+                        options.append(opt.text)
+
+                # Get model info
+                make = car_elem.find("model/make")
+                model = car_elem.find("model/model")
+                version = car_elem.find("model/version")
+
+                if not all([make, model, version]):
+                    logger.warning("Skipping car: Missing make/model/version info")
                     errors_count += 1
                     continue
 
-                price_elem = car_elem.find("price")
+                title = f"{make.text} {model.text} {version.text}"
+
+                # Get numeric values safely
                 try:
-                    price = float(price_elem.text) if price_elem is not None and price_elem.text else 0.0
+                    price = float(car_elem.find("customers_price").text)
                 except (ValueError, AttributeError):
-                    logger.warning(f"Invalid price for car {title.text}: {price_elem.text if price_elem is not None else 'None'}")
+                    logger.warning(f"Invalid price for car {title}")
                     price = 0.0
 
-                year_elem = car_elem.find("year")
                 try:
-                    year = int(year_elem.text) if year_elem is not None and year_elem.text else 0
-                    if year < 1900 or year > 2100:
-                        logger.warning(f"Invalid year for car {title.text}: {year}")
-                        year = 0
-                except (ValueError, AttributeError):
-                    logger.warning(f"Invalid year for car {title.text}: {year_elem.text if year_elem is not None else 'None'}")
+                    registration_date = car_elem.find("registration_date").text
+                    if registration_date:
+                        year = int(registration_date.split('/')[-1])
+                        if year < 1900 or year > 2100:
+                            raise ValueError(f"Invalid year: {year}")
+                    else:
+                        raise ValueError("Empty registration date")
+                except (ValueError, AttributeError, IndexError) as e:
+                    logger.warning(f"Invalid year for car {title}: {str(e)}")
                     year = 0
+
+                try:
+                    km = int(car_elem.find("km").text)
+                except (ValueError, AttributeError):
+                    logger.warning(f"Invalid km for car {title}")
+                    km = 0
 
                 # Create car with validated data
                 new_car = Car(
-                    title=title.text,
-                    image=car_elem.find("image").text if car_elem.find("image") is not None else "",
-                    images=car_elem.find("images").text if car_elem.find("images") is not None else "[]",
+                    title=title,
+                    image=images[0] if images else "",
+                    images=json.dumps(images),
                     price=price,
                     year=year,
-                    km=int(car_elem.find("km").text) if car_elem.find("km") is not None and car_elem.find("km").text else 0,
-                    fuel_type=car_elem.find("fuel_type").text if car_elem.find("fuel_type") is not None else "",
-                    transmission=car_elem.find("transmission").text if car_elem.find("transmission") is not None else "",
-                    body_type=car_elem.find("body_type").text if car_elem.find("body_type") is not None else "",
+                    km=km,
+                    fuel_type=car_elem.find("fuel").text if car_elem.find("fuel") is not None else "",
+                    transmission=car_elem.find("gearbox").text if car_elem.find("gearbox") is not None else "",
+                    body_type=car_elem.find("model/body").text if car_elem.find("model/body") is not None else "",
                     registration_date=car_elem.find("registration_date").text if car_elem.find("registration_date") is not None else "",
-                    engine_power=car_elem.find("engine_power").text if car_elem.find("engine_power") is not None else "",
+                    engine_power=car_elem.find("model/kwatt").text if car_elem.find("model/kwatt") is not None else "",
                     seats=int(car_elem.find("seats").text) if car_elem.find("seats") is not None and car_elem.find("seats").text else 0,
                     doors=int(car_elem.find("doors").text) if car_elem.find("doors") is not None and car_elem.find("doors").text else 0,
-                    color=car_elem.find("color").text if car_elem.find("color") is not None else "",
+                    color=car_elem.find("exterior/color").text if car_elem.find("exterior/color") is not None else "",
                     condition=car_elem.find("condition").text if car_elem.find("condition") is not None else "",
-                    options=car_elem.find("options").text if car_elem.find("options") is not None else "[]",
-                    description=car_elem.find("description").text if car_elem.find("description") is not None else ""
+                    options=json.dumps(options),
+                    description=car_elem.find("formatted_additional_informations").text if car_elem.find("formatted_additional_informations") is not None else ""
                 )
 
                 logger.info(f"Importing car: {new_car.title} (Year: {new_car.year}, Price: {new_car.price})")
