@@ -1,0 +1,99 @@
+echo '🚀 Aggiornamento in corso: Automazione Importazione XML...' && \
+pip install apscheduler requests && \
+echo '🎉 Dipendenze installate!' && \
+cat <<EOF > scheduler.py
+from apscheduler.schedulers.background import BackgroundScheduler
+import threading
+import time
+import requests
+import xml.etree.ElementTree as ET
+from sqlalchemy.orm import Session
+from database import SessionLocal
+from models import Car
+import json
+
+# Funzione per importare i dati dal feed XML
+def import_xml():
+    print("🔄 Importazione XML in corso...")
+    db = SessionLocal()
+    xml_url = "http://xml.gestionaleauto.com/sarmaservice/export_gestionaleauto.php"
+    response = requests.get(xml_url)
+    if response.status_code != 200:
+        print("❌ Errore nel recupero dell'XML")
+        return
+    
+    root = ET.fromstring(response.content)
+    
+    # Cancella le auto esistenti per evitare duplicati
+    db.query(Car).delete()
+
+    for car in root.findall(".//car"):
+        consumption = {
+            "urban": car.find("model/consumption/urban").text if car.find("model/consumption/urban") is not None else "",
+            "outer": car.find("model/consumption/outer").text if car.find("model/consumption/outer") is not None else "",
+            "combined": car.find("model/consumption/combined").text if car.find("model/consumption/combined") is not None else ""
+        }
+        
+        images = [img.find("big").text for img in car.findall("images/image") if img.find("big") is not None]
+        
+        options = [opt.text for opt in car.findall("options/standard_option")]
+        
+        new_car = Car(
+            title=f"{car.find('model/make').text} {car.find('model/model').text} {car.find('model/version').text}",
+            make=car.find("model/make").text,
+            model=car.find("model/model").text,
+            version=car.find("model/version").text,
+            body_type=car.find("model/body").text,
+            fuel_type=car.find("fuel").text,
+            transmission=car.find("gearbox").text,
+            traction=car.find("traction").text,
+            engine_power=car.find("model/kwatt").text,
+            cc=int(car.find("model/cc").text),
+            cylinders=int(car.find("model/cylinders").text),
+            doors=int(car.find("doors").text),
+            seats=int(car.find("seats").text),
+            weight=int(car.find("weight").text),
+            emission_class=car.find("model/emission_class").text,
+            emission_co2=float(car.find("model/emission_co2").text),
+            consumption=json.dumps(consumption),
+            color=car.find("exterior/color").text,
+            paint=car.find("exterior/paint").text,
+            interior_material=car.find("interior/make").text,
+            registration_date=car.find("registration_date").text,
+            km=int(car.find("km").text),
+            price=float(car.find("customers_price").text),
+            previous_owners=int(car.find("previous_owners").text),
+            warranty=car.find("warrenty_type").text,
+            warranty_months=int(car.find("warrenty_months").text),
+            options=json.dumps(options),
+            description=car.find("formatted_additional_informations").text,
+            images=json.dumps(images)
+        )
+        db.add(new_car)
+    db.commit()
+    db.close()
+    print("✅ Auto importate con successo!")
+
+# Scheduler per eseguire l'importazione ogni 24 ore
+scheduler = BackgroundScheduler()
+scheduler.add_job(import_xml, "interval", hours=24)
+scheduler.start()
+
+# Mantiene il processo attivo
+def run_scheduler():
+    while True:
+        time.sleep(1)
+
+thread = threading.Thread(target=run_scheduler, daemon=True)
+thread.start()
+EOF
+
+echo '🔄 Aggiornando il file main.py per avviare lo scheduler...' && \
+cat <<EOF >> main.py
+
+# Avvia lo scheduler automatico
+import scheduler
+EOF
+
+echo '✅ Modifiche completate! Ora esegui:'
+echo 'uvicorn main:app --host=0.0.0.0 --port=8000 --reload'

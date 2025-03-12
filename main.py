@@ -17,7 +17,6 @@ logger = logging.getLogger(__name__)
 
 app = create_app()
 
-# Routes
 @app.route('/')
 def home():
     return render_template("index.html")
@@ -203,7 +202,6 @@ def import_xml():
                     logger.warning(f"Invalid km for car {title}: {e}")
                     km = 0
 
-                # Create car with validated data
                 new_car = Car(
                     title=title,
                     image=images[0] if images else "",
