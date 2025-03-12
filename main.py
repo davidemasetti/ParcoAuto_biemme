@@ -29,20 +29,51 @@ def car_detail(car_id):
 @app.route('/api/cars/')
 def get_cars():
     try:
+        # Pagination parameters
         skip = request.args.get('skip', 0, type=int)
         limit = request.args.get('limit', 100, type=int)
-        search = request.args.get('search', None, type=str)
 
+        # Filter parameters
+        min_price = request.args.get('min_price', type=float)
+        max_price = request.args.get('max_price', type=float)
+        min_year = request.args.get('min_year', type=int)
+        max_year = request.args.get('max_year', type=int)
+        min_km = request.args.get('min_km', type=int)
+        max_km = request.args.get('max_km', type=int)
+        fuel_type = request.args.get('fuel_type', type=str)
+        transmission = request.args.get('transmission', type=str)
+        body_type = request.args.get('body_type', type=str)
+        color = request.args.get('color', type=str)
+
+        # Build query
         query = Car.query
-        if search:
-            search_filter = or_(
-                Car.title.ilike(f"%{search}%"),
-                Car.description.ilike(f"%{search}%"),
-                Car.color.ilike(f"%{search}%")
-            )
-            query = query.filter(search_filter)
 
+        # Apply filters
+        if min_price is not None:
+            query = query.filter(Car.price >= min_price)
+        if max_price is not None:
+            query = query.filter(Car.price <= max_price)
+        if min_year is not None:
+            query = query.filter(Car.year >= min_year)
+        if max_year is not None:
+            query = query.filter(Car.year <= max_year)
+        if min_km is not None:
+            query = query.filter(Car.km >= min_km)
+        if max_km is not None:
+            query = query.filter(Car.km <= max_km)
+        if fuel_type:
+            query = query.filter(Car.fuel_type.ilike(f"%{fuel_type}%"))
+        if transmission:
+            query = query.filter(Car.transmission.ilike(f"%{transmission}%"))
+        if body_type:
+            query = query.filter(Car.body_type.ilike(f"%{body_type}%"))
+        if color:
+            query = query.filter(Car.color.ilike(f"%{color}%"))
+
+        # Execute query with pagination
         cars = query.offset(skip).limit(limit).all()
+
+        # Convert to JSON
         return jsonify([{
             'id': car.id,
             'title': car.title,
@@ -63,6 +94,7 @@ def get_cars():
             'options': car.options,
             'description': car.description
         } for car in cars])
+
     except Exception as e:
         logger.error(f"Error getting cars: {e}")
         return jsonify({"error": "Internal server error"}), 500

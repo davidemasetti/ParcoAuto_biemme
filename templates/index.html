@@ -29,6 +29,89 @@
                 </div>
             </div>
         </div>
+        <div class="row mb-4">
+            <div class="col">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Filtri Avanzati</h5>
+                            <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse">
+                                <i class="fas fa-filter"></i> Mostra/Nascondi Filtri
+                            </button>
+                        </div>
+                    </div>
+                    <div class="collapse show" id="filterCollapse">
+                        <div class="card-body">
+                            <form id="filterForm" class="row g-3">
+                                <div class="col-md-4">
+                                    <label class="form-label">Prezzo</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="minPrice" placeholder="Min">
+                                        <input type="number" class="form-control" id="maxPrice" placeholder="Max">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Anno</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="minYear" placeholder="Min">
+                                        <input type="number" class="form-control" id="maxYear" placeholder="Max">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Chilometri</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="minKm" placeholder="Min">
+                                        <input type="number" class="form-control" id="maxKm" placeholder="Max">
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Tipo Carburante</label>
+                                    <select class="form-select" id="fuelType">
+                                        <option value="">Tutti</option>
+                                        <option value="Benzina">Benzina</option>
+                                        <option value="Diesel">Diesel</option>
+                                        <option value="Elettrica">Elettrica</option>
+                                        <option value="Ibrida">Ibrida</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Trasmissione</label>
+                                    <select class="form-select" id="transmission">
+                                        <option value="">Tutte</option>
+                                        <option value="Manuale">Manuale</option>
+                                        <option value="Automatico">Automatico</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Tipo Carrozzeria</label>
+                                    <select class="form-select" id="bodyType">
+                                        <option value="">Tutte</option>
+                                        <option value="Berlina">Berlina</option>
+                                        <option value="SUV">SUV</option>
+                                        <option value="Station Wagon">Station Wagon</option>
+                                        <option value="Coupé">Coupé</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Colore</label>
+                                    <input type="text" class="form-control" id="color" placeholder="Colore">
+                                </div>
+                                <div class="col-12">
+                                    <div class="d-flex justify-content-between">
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-search"></i> Cerca
+                                        </button>
+                                        <button type="reset" class="btn btn-secondary">
+                                            <i class="fas fa-undo"></i> Reset Filtri
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <div class="row" id="carGrid">
             <!-- Cars will be loaded here -->
