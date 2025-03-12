@@ -1,5 +1,7 @@
 from apscheduler.schedulers.background import BackgroundScheduler
 import logging
+import threading
+import time
 import xml.etree.ElementTree as ET
 import requests
 import json
@@ -123,12 +125,39 @@ def import_xml():
     except Exception as e:
         logger.error(f"❌ Errore durante l'importazione automatica: {e}")
 
+
+def delayed_scheduler_start():
+    """
+    Avvia lo scheduler in un thread separato con un ritardo iniziale
+    per evitare blocchi durante l'avvio dell'applicazione
+    """
+    try:
+        # Attendi 10 secondi prima di avviare lo scheduler
+        time.sleep(10)
+
+        logger.info("Inizializzazione scheduler...")
+        scheduler = BackgroundScheduler()
+
+        # Aggiungi il job per l'importazione XML ogni 24 ore
+        scheduler.add_job(
+            import_xml,
+            'interval',
+            hours=24,
+            id='xml_import',
+            next_run_time=None  # Non eseguire immediatamente
+        )
+
+        scheduler.start()
+        logger.info("Scheduler avviato con successo")
+
+    except Exception as e:
+        logger.error(f"Errore nell'avvio dello scheduler: {e}")
+
 def init_scheduler():
     """
-    Inizializza e avvia lo scheduler per l'importazione automatica.
+    Inizializza lo scheduler in un thread separato
     """
-    scheduler = BackgroundScheduler()
-    scheduler.add_job(import_xml, 'interval', hours=24, id='xml_import')
-    scheduler.start()
-    logger.info("📅 Scheduler avviato: importazione XML programmata ogni 24 ore")
-    return scheduler
+    thread = threading.Thread(target=delayed_scheduler_start, daemon=True)
+    thread.start()
+    logger.info("Thread scheduler avviato")
+    return thread

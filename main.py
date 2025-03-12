@@ -7,6 +7,7 @@ import xml.etree.ElementTree as ET
 import requests
 from app import create_app, db
 from models import Car
+from scheduler import init_scheduler
 
 # Configure logging
 logging.basicConfig(
@@ -16,6 +17,9 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 app = create_app()
+
+# Initialize scheduler in non-blocking way
+scheduler_thread = init_scheduler()
 
 @app.route('/')
 def home():
