@@ -1,0 +1,37 @@
+.card-img-top {
+    height: 200px;
+    object-fit: cover;
+}
+
+.navbar {
+    margin-bottom: 2rem;
+}
+
+.car-details {
+    margin-top: 1rem;
+}
+
+.car-details p {
+    margin-bottom: 0.5rem;
+}
+
+#searchInput {
+    max-width: 500px;
+}
+
+.card {
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.btn-primary {
+    margin-right: 0.5rem;
+}
+
+.loading {
+    opacity: 0.5;
+    pointer-events: none;
+}
