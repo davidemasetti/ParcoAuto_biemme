@@ -27,6 +27,10 @@ def home():
 
 @app.route('/car/<int:car_id>')
 def car_detail(car_id):
+    # Verifica se l'auto esiste
+    car = Car.query.get(car_id)
+    if car is None:
+        return render_template("404.html"), 404
     return render_template("car_detail.html", car_id=car_id)
 
 @app.route('/api/cars/')
@@ -128,7 +132,7 @@ def get_car(car_id):
         })
     except Exception as e:
         logger.error(f"Error getting car {car_id}: {e}")
-        return jsonify({"error": "Internal server error"}), 500
+        return jsonify({"error": "Auto non trovata"}), 404
 
 @app.route('/api/import-xml/', methods=['POST'])
 def import_xml():

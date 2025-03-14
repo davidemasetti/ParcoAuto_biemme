@@ -1,0 +1,71 @@
+[2025-03-14 17:12:41 +0000] [2509] [INFO] Starting gunicorn 23.0.0
+[2025-03-14 17:12:41 +0000] [2509] [INFO] Listening at: http://0.0.0.0:5000 (2509)
+[2025-03-14 17:12:41 +0000] [2509] [INFO] Using worker: sync
+[2025-03-14 17:12:41 +0000] [2509] [INFO] Handling signal: winchd: 2520
+[2025-03-14 17:12:41 +0000] [2509] [INFO] Handling signal: winch
+[2025-03-14 17:12:41 +0000] [2509] [INFO] Handling signal: winch
+[2025-03-14 17:12:41 +0000] [2509] [INFO] Handling signal: winch
+[2025-03-14 17:12:42 +0000] [2509] [INFO] Handling signal: winch
+[2025-03-14 17:12:42 +0000] [2509] [INFO] Handling signal: winch
+[2025-03-14 17:12:42 +0000] [2509] [INFO] Handling signal: winch
+2025-03-14 17:12:44,961 - scheduler - INFO - Thread scheduler avviato
+[2025-03-14 17:12:47 +0000] [2509] [INFO] Handling signal: winch
+[2025-03-14 17:12:47 +0000] [2509] [INFO] Handling signal: winch
+[2025-03-14 17:12:47 +0000] [2509] [INFO] Handling signal: winch
+[2025-03-14 17:12:47 +0000] [2509] [INFO] Handling signal: winch
+[2025-03-14 17:12:47 +0000] [2509] [INFO] Handling signal: winch
+[2025-03-14 17:12:48 +0000] [2509] [INFO] Handling signal: winch
+[2025-03-14 17:12:48 +0000] [2509] [INFO] Handling signal: winch
+[2025-03-14 17:12:48 +0000] [2509] [INFO] Handling signal: winch
+[2025-03-14 17:12:48 +0000] [2509] [INFO] Handling signal: winch
+[2025-03-14 17:12:48 +0000] [2509] [INFO] Handling signal: winch
+[2025-03-14 17:12:48 +0000] [2509] [INFO] Handling signal: winch
+[2025-03-14 17:12:49 +0000] [2509] [INFO] Handling signal: winch
+[2025-03-14 17:12:49 +0000] [2509] [INFO] Handling signal: winch
+[2025-03-14 17:12:49 +0000] [2509] [INFO] Handling signal: winch
+[2025-03-14 17:12:49 +0000] [2509] [INFO] Handling signal: winch
+[2025-03-14 17:12:49 +0000] [2509] [INFO] Handling signal: winch
+[2025-03-14 17:12:49 +0000] [2509] [INFO] Handling signal: winch
+[2025-03-14 17:12:50 +0000] [2509] [INFO] Handling signal: winch
+[2025-03-14 17:12:50 +0000] [2509] [INFO] Handling signal: winch
+[2025-03-14 17:12:50 +0000] [2509] [INFO] Handling signal: winch
+[2025-03-14 17:12:50 +0000] [2509] [INFO] Handling signal: winch
+[2025-03-14 17:12:50 +0000] [2509] [INFO] Handling signal: winch
+[2025-03-14 17:12:50 +0000] [2509] [INFO] Handling signal: winch
+[2025-03-14 17:12:51 +0000] [2509] [INFO] Handling signal: winch
+[2025-03-14 17:12:51 +0000] [2509] [INFO] Handling signal: winch
+[2025-03-14 17:12:51 +0000] [2509] [INFO] Handling signal: winch
+[2025-03-14 17:12:51 +0000] [2509] [INFO] Handling signal: winch
+[2025-03-14 17:12:51 +0000] [2509] [INFO] Handling signal: winch
+[2025-03-14 17:12:51 +0000] [2509] [INFO] Handling signal: winch
+2025-03-14 17:12:54,961 - scheduler - INFO - Inizializzazione scheduler...
+2025-03-14 17:12:54,962 - tzlocal - DEBUG - No explicit setting existed. Use localtime
+2025-03-14 17:12:54,962 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-03-14 17:12:54,964 - apscheduler.scheduler - INFO - Added job "import_xml" to job store "default"
+2025-03-14 17:12:54,964 - apscheduler.scheduler - INFO - Scheduler started
+2025-03-14 17:12:54,964 - apscheduler.scheduler - DEBUG - Looking for jobs to run
+2025-03-14 17:12:54,964 - scheduler - INFO - Scheduler avviato con successo
+2025-03-14 17:12:54,964 - apscheduler.executors.default - INFO - Running job "import_xml (trigger: interval[1 day, 0:00:00], next run at: 2025-03-14 17:12:54 UTC)" (scheduled at 2025-03-14 17:12:54.962353+00:00)
+2025-03-14 17:12:54,965 - scheduler - INFO - 🔄 Importazione XML automatica in corso...
+2025-03-14 17:12:54,967 - apscheduler.scheduler - DEBUG - Next wakeup is due at 2025-03-15 17:12:54.962353+00:00 (in 86399.995019 seconds)
+2025-03-14 17:12:57,746 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): xml.gestionaleauto.com:80
+2025-03-14 17:12:57,955 - urllib3.connectionpool - DEBUG - http://xml.gestionaleauto.com:80 "GET /sarmaservice/export_gestionaleauto.php HTTP/1.1" 200 None
+2025-03-14 17:12:58,171 - scheduler - INFO - Importing car: LAND ROVER Discovery Sport 2.0 TD4 150 CV  Business Edition Pure (Year: 2017, Price: 13500.0)
+2025-03-14 17:12:58,171 - scheduler - INFO - Importing car: BMW 120 d 5p. Msport (Year: 2017, Price: 15900.0)
+2025-03-14 17:12:58,171 - scheduler - INFO - Importing car: MERCEDES-BENZ C 200 d S.W. Auto Exclusive (Year: 2016, Price: 13900.0)
+2025-03-14 17:12:58,171 - scheduler - INFO - Importing car: BMW 116 d 5p. (Year: 2019, Price: 15500.0)
+2025-03-14 17:12:58,172 - scheduler - INFO - Importing car: DACIA Duster 1.5 dCi 110CV 4x4 Lauréate (Year: 2012, Price: 7900.0)
+2025-03-14 17:12:58,172 - scheduler - INFO - Importing car: BMW Z3 M 3.2 24V cat M Roadster (Year: 1998, Price: 46500.0)
+2025-03-14 17:12:58,172 - scheduler - INFO - Importing car: MINI Countryman 1.5 One D Countryman (Year: 2018, Price: 18200.0)
+2025-03-14 17:12:58,172 - scheduler - INFO - Importing car: BMW 520 Mild Hybrid 48V xDrive Touring Msport (Year: 2020, Price: 25500.0)
+2025-03-14 17:12:58,172 - scheduler - INFO - Importing car: BMW 216 d Active  GRAN Tourer Advantage (Year: 2018, Price: 14900.0)
+2025-03-14 17:12:58,172 - scheduler - INFO - Importing car: AUDI A6 Avant 3.0 TDI quattro S tronic (Year: 2016, Price: 19900.0)
+2025-03-14 17:12:58,173 - scheduler - INFO - Importing car: MINI Cooper SE Essential (Year: 2023, Price: 22000.0)
+2025-03-14 17:12:58,173 - scheduler - INFO - Importing car: CITROEN C3 Aircross PureTech 82 Shine (Year: 2018, Price: 12800.0)
+2025-03-14 17:12:58,173 - scheduler - INFO - Importing car: FIAT Panda 1.2 EasyPower  CONNECT GPL (Year: 2019, Price: 9600.0)
+2025-03-14 17:12:58,173 - scheduler - INFO - Importing car: VOLKSWAGEN Touareg 3.0 TDI 245 CV tiptronic BlueMotion Techn. Executi (Year: 2012, Price: 16800.0)
+2025-03-14 17:12:58,173 - scheduler - INFO - Importing car: MINI Countryman 2.0 Cooper D Boost Countryman (Year: 2018, Price: 17500.0)
+2025-03-14 17:12:58,174 - scheduler - INFO - Importing car: SKODA Octavia 1.6 TDI CR 115 CV Executive Berlina (Year: 2018, Price: 15400.0)
+2025-03-14 17:12:58,290 - scheduler - INFO - ✅ Importazione automatica completata: 16 auto importate
+2025-03-14 17:12:58,290 - apscheduler.executors.default - INFO - Job "import_xml (trigger: interval[1 day, 0:00:00], next run at: 2025-03-15 17:12:54 UTC)" executed successfully
+2025-03-14 17:14:55,430 - main - ERROR - Error getting car 81: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.

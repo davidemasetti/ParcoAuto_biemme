@@ -79,7 +79,15 @@
 
             // Fetch car details
             fetch(`/api/cars/${carId}`)
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        if (response.status === 404) {
+                            window.location.href = '/car/not-found';
+                        }
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
                 .then(car => {
                     // Set car details
                     document.getElementById('carTitle').textContent = car.title;
@@ -119,7 +127,16 @@
                 })
                 .catch(error => {
                     console.error('Error loading car details:', error);
-                    alert('Errore nel caricamento dei dettagli dell\'auto. Riprova più tardi.');
+                    document.body.innerHTML = `
+                        <div class="container mt-5 text-center">
+                            <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+                            <h2>Errore nel caricamento dei dettagli</h2>
+                            <p class="lead">Si è verificato un errore durante il caricamento dei dettagli dell'auto.</p>
+                            <a href="/" class="btn btn-primary mt-3">
+                                <i class="fas fa-arrow-left"></i> Torna alla lista delle auto
+                            </a>
+                        </div>
+                    `;
                 });
         });
     </script>
