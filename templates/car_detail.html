@@ -45,8 +45,6 @@
                             <div class="col-6">
                                 <p><strong>Carrozzeria:</strong> <span id="carBody"></span></p>
                                 <p><strong>Colore:</strong> <span id="carColor"></span></p>
-                                <p><strong>Porte:</strong> <span id="carDoors"></span></p>
-                                <p><strong>Posti:</strong> <span id="carSeats"></span></p>
                             </div>
                         </div>
 
@@ -61,8 +59,8 @@
 
                         <hr>
 
-                        <div class="mt-3">
-                            <h4>Descrizione</h4>
+                        <div class="mt-3" id="additionalInfoSection" style="display: none;">
+                            <h4>Informazioni aggiuntive</h4>
                             <p id="carDescription" class="mt-2"></p>
                         </div>
                     </div>
@@ -98,9 +96,12 @@
                     document.getElementById('carTransmission').textContent = car.transmission;
                     document.getElementById('carBody').textContent = car.body_type;
                     document.getElementById('carColor').textContent = car.color;
-                    document.getElementById('carDoors').textContent = car.doors;
-                    document.getElementById('carSeats').textContent = car.seats;
-                    document.getElementById('carDescription').textContent = car.description;
+
+                    // Set description if not empty
+                    if (car.description && car.description.trim() !== '') {
+                        document.getElementById('carDescription').textContent = car.description;
+                        document.getElementById('additionalInfoSection').style.display = 'block';
+                    }
 
                     // Set main image
                     const mainImage = document.getElementById('mainImage');
