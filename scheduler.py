@@ -5,6 +5,7 @@ import time
 import xml.etree.ElementTree as ET
 import requests
 import json
+from datetime import datetime
 from app import db
 from models import Car
 
@@ -27,7 +28,7 @@ def import_xml():
 
         # Rimuovi tutte le auto esistenti per evitare duplicati
         Car.query.delete()
-        
+
         for car_elem in root.findall(".//car"):
             try:
                 # Extract images
@@ -139,12 +140,13 @@ def delayed_scheduler_start():
         scheduler = BackgroundScheduler()
 
         # Aggiungi il job per l'importazione XML ogni 24 ore
+        # con esecuzione immediata
         scheduler.add_job(
             import_xml,
             'interval',
             hours=24,
             id='xml_import',
-            next_run_time=None  # Non eseguire immediatamente
+            next_run_time=datetime.now()  # Esegui subito la prima volta
         )
 
         scheduler.start()
