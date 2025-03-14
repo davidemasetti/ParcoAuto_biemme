@@ -1,0 +1,91 @@
+[2025-03-14 17:03:33 +0000] [1703] [INFO] Starting gunicorn 23.0.0
+[2025-03-14 17:03:33 +0000] [1703] [INFO] Listening at: http://0.0.0.0:5000 (1703)
+[2025-03-14 17:03:33 +0000] [1703] [INFO] Using worker: sync
+[2025-03-14 17:03:33 +0000] [1703] [INFO] Handling signal: winchd: 1715
+[2025-03-14 17:03:33 +0000] [1703] [INFO] Handling signal: winch
+[2025-03-14 17:03:34 +0000] [1703] [INFO] Handling signal: winch
+[2025-03-14 17:03:34 +0000] [1703] [INFO] Handling signal: winch
+[2025-03-14 17:03:34 +0000] [1703] [INFO] Handling signal: winch
+[2025-03-14 17:03:34 +0000] [1703] [INFO] Handling signal: winch
+[2025-03-14 17:03:34 +0000] [1703] [INFO] Handling signal: winch
+[2025-03-14 17:03:34 +0000] [1703] [INFO] Handling signal: winch
+[2025-03-14 17:03:35 +0000] [1703] [INFO] Handling signal: winch
+[2025-03-14 17:03:35 +0000] [1703] [INFO] Handling signal: winch
+[2025-03-14 17:03:35 +0000] [1703] [INFO] Handling signal: winch
+[2025-03-14 17:03:35 +0000] [1703] [INFO] Handling signal: winch
+[2025-03-14 17:03:35 +0000] [1703] [INFO] Handling signal: winch
+[2025-03-14 17:03:35 +0000] [1703] [INFO] Handling signal: winch
+[2025-03-14 17:03:36 +0000] [1703] [INFO] Handling signal: winch
+[2025-03-14 17:03:36 +0000] [1703] [INFO] Handling signal: winch
+[2025-03-14 17:03:36 +0000] [1703] [INFO] Handling signal: winch
+[2025-03-14 17:03:36 +0000] [1703] [INFO] Handling signal: winch
+[2025-03-14 17:03:36 +0000] [1703] [INFO] Handling signal: winch
+[2025-03-14 17:03:37 +0000] [1703] [INFO] Handling signal: winch
+[2025-03-14 17:03:37 +0000] [1703] [INFO] Handling signal: winch
+[2025-03-14 17:03:37 +0000] [1703] [INFO] Handling signal: winch
+[2025-03-14 17:03:37 +0000] [1703] [INFO] Handling signal: winch
+[2025-03-14 17:03:37 +0000] [1703] [INFO] Handling signal: winch
+2025-03-14 17:03:37,827 - scheduler - INFO - Thread scheduler avviato
+[2025-03-14 17:03:37 +0000] [1703] [INFO] Handling signal: winch
+[2025-03-14 17:03:37 +0000] [1703] [INFO] Handling signal: winch
+[2025-03-14 17:03:38 +0000] [1703] [INFO] Handling signal: winch
+[2025-03-14 17:03:38 +0000] [1703] [INFO] Handling signal: winch
+[2025-03-14 17:03:38 +0000] [1703] [INFO] Handling signal: winch
+[2025-03-14 17:03:38 +0000] [1703] [INFO] Handling signal: winch
+[2025-03-14 17:03:38 +0000] [1703] [INFO] Handling signal: winch
+[2025-03-14 17:03:38 +0000] [1703] [INFO] Handling signal: winch
+[2025-03-14 17:03:38 +0000] [1703] [INFO] Handling signal: winch
+[2025-03-14 17:03:38 +0000] [1703] [INFO] Handling signal: winch
+[2025-03-14 17:03:38 +0000] [1703] [INFO] Handling signal: winch
+[2025-03-14 17:03:38 +0000] [1703] [INFO] Handling signal: winch
+[2025-03-14 17:03:38 +0000] [1703] [INFO] Handling signal: winch
+[2025-03-14 17:03:39 +0000] [1703] [INFO] Handling signal: winch
+[2025-03-14 17:03:39 +0000] [1703] [INFO] Handling signal: winch
+2025-03-14 17:03:47,827 - scheduler - INFO - Inizializzazione scheduler...
+2025-03-14 17:03:47,827 - tzlocal - DEBUG - No explicit setting existed. Use localtime
+2025-03-14 17:03:47,828 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-03-14 17:03:47,829 - apscheduler.scheduler - INFO - Added job "import_xml" to job store "default"
+2025-03-14 17:03:47,829 - apscheduler.scheduler - INFO - Scheduler started
+2025-03-14 17:03:47,830 - apscheduler.scheduler - DEBUG - Looking for jobs to run
+2025-03-14 17:03:47,830 - scheduler - INFO - Scheduler avviato con successo
+2025-03-14 17:03:47,830 - apscheduler.executors.default - INFO - Running job "import_xml (trigger: interval[1 day, 0:00:00], next run at: 2025-03-14 17:03:47 UTC)" (scheduled at 2025-03-14 17:03:47.827901+00:00)
+2025-03-14 17:03:47,830 - apscheduler.scheduler - DEBUG - Next wakeup is due at 2025-03-15 17:03:47.827901+00:00 (in 86399.997384 seconds)
+2025-03-14 17:03:47,830 - scheduler - INFO - 🔄 Importazione XML automatica in corso...
+2025-03-14 17:03:47,833 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): xml.gestionaleauto.com:80
+2025-03-14 17:03:48,040 - urllib3.connectionpool - DEBUG - http://xml.gestionaleauto.com:80 "GET /sarmaservice/export_gestionaleauto.php HTTP/1.1" 200 None
+2025-03-14 17:03:48,250 - scheduler - INFO - Importing car: LAND ROVER Discovery Sport 2.0 TD4 150 CV  Business Edition Pure (Year: 2017, Price: 13500.0)
+2025-03-14 17:03:48,250 - scheduler - ERROR - Error importing car: 'Flask' object has no attribute 'db'
+2025-03-14 17:03:48,250 - scheduler - INFO - Importing car: BMW 120 d 5p. Msport (Year: 2017, Price: 15900.0)
+2025-03-14 17:03:48,250 - scheduler - ERROR - Error importing car: 'Flask' object has no attribute 'db'
+2025-03-14 17:03:48,250 - scheduler - INFO - Importing car: MERCEDES-BENZ C 200 d S.W. Auto Exclusive (Year: 2016, Price: 13900.0)
+2025-03-14 17:03:48,250 - scheduler - ERROR - Error importing car: 'Flask' object has no attribute 'db'
+2025-03-14 17:03:48,250 - scheduler - INFO - Importing car: BMW 116 d 5p. (Year: 2019, Price: 15500.0)
+2025-03-14 17:03:48,250 - scheduler - ERROR - Error importing car: 'Flask' object has no attribute 'db'
+2025-03-14 17:03:48,251 - scheduler - INFO - Importing car: DACIA Duster 1.5 dCi 110CV 4x4 Lauréate (Year: 2012, Price: 7900.0)
+2025-03-14 17:03:48,251 - scheduler - ERROR - Error importing car: 'Flask' object has no attribute 'db'
+2025-03-14 17:03:48,251 - scheduler - INFO - Importing car: BMW Z3 M 3.2 24V cat M Roadster (Year: 1998, Price: 46500.0)
+2025-03-14 17:03:48,251 - scheduler - ERROR - Error importing car: 'Flask' object has no attribute 'db'
+2025-03-14 17:03:48,251 - scheduler - INFO - Importing car: MINI Countryman 1.5 One D Countryman (Year: 2018, Price: 18200.0)
+2025-03-14 17:03:48,251 - scheduler - ERROR - Error importing car: 'Flask' object has no attribute 'db'
+2025-03-14 17:03:48,251 - scheduler - INFO - Importing car: BMW 520 Mild Hybrid 48V xDrive Touring Msport (Year: 2020, Price: 25500.0)
+2025-03-14 17:03:48,251 - scheduler - ERROR - Error importing car: 'Flask' object has no attribute 'db'
+2025-03-14 17:03:48,251 - scheduler - INFO - Importing car: BMW 216 d Active  GRAN Tourer Advantage (Year: 2018, Price: 14900.0)
+2025-03-14 17:03:48,251 - scheduler - ERROR - Error importing car: 'Flask' object has no attribute 'db'
+2025-03-14 17:03:48,251 - scheduler - INFO - Importing car: AUDI A6 Avant 3.0 TDI quattro S tronic (Year: 2016, Price: 19900.0)
+2025-03-14 17:03:48,252 - scheduler - ERROR - Error importing car: 'Flask' object has no attribute 'db'
+2025-03-14 17:03:48,252 - scheduler - INFO - Importing car: MINI Cooper SE Essential (Year: 2023, Price: 22000.0)
+2025-03-14 17:03:48,252 - scheduler - ERROR - Error importing car: 'Flask' object has no attribute 'db'
+2025-03-14 17:03:48,252 - scheduler - INFO - Importing car: CITROEN C3 Aircross PureTech 82 Shine (Year: 2018, Price: 12800.0)
+2025-03-14 17:03:48,252 - scheduler - ERROR - Error importing car: 'Flask' object has no attribute 'db'
+2025-03-14 17:03:48,252 - scheduler - INFO - Importing car: FIAT Panda 1.2 EasyPower  CONNECT GPL (Year: 2019, Price: 9600.0)
+2025-03-14 17:03:48,252 - scheduler - ERROR - Error importing car: 'Flask' object has no attribute 'db'
+2025-03-14 17:03:48,252 - scheduler - INFO - Importing car: VOLKSWAGEN Touareg 3.0 TDI 245 CV tiptronic BlueMotion Techn. Executi (Year: 2012, Price: 16800.0)
+2025-03-14 17:03:48,252 - scheduler - ERROR - Error importing car: 'Flask' object has no attribute 'db'
+2025-03-14 17:03:48,252 - scheduler - INFO - Importing car: MINI Countryman 2.0 Cooper D Boost Countryman (Year: 2018, Price: 17500.0)
+2025-03-14 17:03:48,252 - scheduler - ERROR - Error importing car: 'Flask' object has no attribute 'db'
+2025-03-14 17:03:48,252 - scheduler - INFO - Importing car: SKODA Octavia 1.6 TDI CR 115 CV Executive Berlina (Year: 2018, Price: 15400.0)
+2025-03-14 17:03:48,252 - scheduler - ERROR - Error importing car: 'Flask' object has no attribute 'db'
+2025-03-14 17:03:48,287 - scheduler - ERROR - ❌ Errore durante l'importazione automatica: 'Flask' object has no attribute 'db'
+2025-03-14 17:03:48,288 - apscheduler.executors.default - INFO - Job "import_xml (trigger: interval[1 day, 0:00:00], next run at: 2025-03-15 17:03:47 UTC)" executed successfully
+[2025-03-14 17:03:50 +0000] [1703] [INFO] Handling signal: winch
+[2025-03-14 17:03:50 +0000] [1703] [INFO] Handling signal: winch
