@@ -35,3 +35,36 @@
     opacity: 0.5;
     pointer-events: none;
 }
+
+/* Car Detail Page Styles */
+#mainImage {
+    max-height: 400px;
+    width: 100%;
+    object-fit: cover;
+}
+
+#imageGallery img {
+    height: 100px;
+    object-fit: cover;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+#imageGallery img:hover {
+    opacity: 0.8;
+}
+
+.badge {
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+}
+
+#carPrice {
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+#carDescription {
+    white-space: pre-line;
+    line-height: 1.6;
+}
