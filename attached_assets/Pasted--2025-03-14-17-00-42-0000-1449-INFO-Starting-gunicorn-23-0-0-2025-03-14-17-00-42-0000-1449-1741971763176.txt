@@ -1,0 +1,38 @@
+[2025-03-14 17:00:42 +0000] [1449] [INFO] Starting gunicorn 23.0.0
+[2025-03-14 17:00:42 +0000] [1449] [INFO] Listening at: http://0.0.0.0:5000 (1449)
+[2025-03-14 17:00:42 +0000] [1449] [INFO] Using worker: sync
+[2025-03-14 17:00:42 +0000] [1460] [INFO] Booting worker with pid: 1460
+[2025-03-14 17:00:42 +0000] [1449] [INFO] Handling signal: winch
+2025-03-14 17:00:43,477 - scheduler - INFO - Thread scheduler avviato
+2025-03-14 17:00:53,473 - scheduler - INFO - Inizializzazione scheduler...
+2025-03-14 17:00:53,474 - tzlocal - DEBUG - No explicit setting existed. Use localtime
+2025-03-14 17:00:53,476 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-03-14 17:00:53,478 - apscheduler.scheduler - INFO - Added job "import_xml" to job store "default"
+2025-03-14 17:00:53,478 - apscheduler.scheduler - INFO - Scheduler started
+2025-03-14 17:00:53,478 - apscheduler.scheduler - DEBUG - Looking for jobs to run
+2025-03-14 17:00:53,479 - scheduler - INFO - Scheduler avviato con successo
+2025-03-14 17:00:53,479 - apscheduler.executors.default - INFO - Running job "import_xml (trigger: interval[1 day, 0:00:00], next run at: 2025-03-14 17:00:53 UTC)" (scheduled at 2025-03-14 17:00:53.474441+00:00)
+2025-03-14 17:00:53,479 - scheduler - INFO - 🔄 Importazione XML automatica in corso...
+2025-03-14 17:00:53,480 - apscheduler.scheduler - DEBUG - Next wakeup is due at 2025-03-15 17:00:53.474441+00:00 (in 86399.994200 seconds)
+2025-03-14 17:00:53,482 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): xml.gestionaleauto.com:80
+2025-03-14 17:00:53,987 - urllib3.connectionpool - DEBUG - http://xml.gestionaleauto.com:80 "GET /sarmaservice/export_gestionaleauto.php HTTP/1.1" 200 None
+2025-03-14 17:00:54,088 - scheduler - ERROR - ❌ Errore durante l'importazione automatica: Working outside of application context.
+
+This typically means that you attempted to use functionality that needed
+the current application. To solve this, set up an application context
+with app.app_context(). See the documentation for more information.
+2025-03-14 17:00:54,088 - apscheduler.executors.default - INFO - Job "import_xml (trigger: interval[1 day, 0:00:00], next run at: 2025-03-15 17:00:53 UTC)" executed successfully
+[2025-03-14 17:02:17 +0000] [1449] [INFO] Handling signal: winch
+[2025-03-14 17:02:17 +0000] [1449] [INFO] Handling signal: winch
+[2025-03-14 17:02:17 +0000] [1449] [INFO] Handling signal: winch
+[2025-03-14 17:02:17 +0000] [1449] [INFO] Handling signal: winch
+[2025-03-14 17:02:17 +0000] [1449] [INFO] Handling signal: winch
+[2025-03-14 17:02:18 +0000] [1449] [INFO] Handling signal: winch
+[2025-03-14 17:02:18 +0000] [1449] [INFO] Handling signal: winch
+[2025-03-14 17:02:18 +0000] [1449] [INFO] Handling signal: winch
+[2025-03-14 17:02:18 +0000] [1449] [INFO] Handling signal: winch
+[2025-03-14 17:02:18 +0000] [1449] [INFO] Handling signal: winch
+[2025-03-14 17:02:18 +0000] [1449] [INFO] Handling signal: winch
+[2025-03-14 17:02:18 +0000] [1449] [INFO] Handling signal: winch
+[2025-03-14 17:02:18 +0000] [1449] [INFO] Handling signal: winch
+[2025-03-14 17:02:18 +0000] [1449] [INFO] Handling signal: winch
