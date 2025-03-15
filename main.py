@@ -50,7 +50,6 @@ def get_cars():
         fuel_type = request.args.get('fuel_type', type=str)
         transmission = request.args.get('transmission', type=str)
         body_type = request.args.get('body_type', type=str)
-        color = request.args.get('color', type=str)
 
         # Build query
         query = Car.query
@@ -85,8 +84,6 @@ def get_cars():
                 ))
             else:
                 query = query.filter(Car.body_type.ilike(f"%{body_type}%"))
-        if color:
-            query = query.filter(Car.color.ilike(f"%{color}%"))
 
         # Execute query with pagination
         cars = query.offset(skip).limit(limit).all()

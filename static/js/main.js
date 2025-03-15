@@ -152,8 +152,7 @@ document.addEventListener('DOMContentLoaded', function() {
             max_km: document.getElementById('maxKm').value,
             fuel_type: document.getElementById('fuelType').value,
             transmission: document.getElementById('transmission').value,
-            body_type: document.getElementById('bodyType').value,
-            color: document.getElementById('color').value
+            body_type: document.getElementById('bodyType').value
         };
         loadCars(filters);
     });
