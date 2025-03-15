@@ -44,28 +44,47 @@ body {
 .car-card .card {
     border: 1px solid #E5E5E5;
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.car-card .card:hover {
+    box-shadow: 0 4px 8px rgba(3, 102, 177, 0.1);
 }
 
 .car-image {
     height: 250px;
     width: 100%;
     object-fit: cover;
+    transition: opacity 0.3s ease;
+}
+
+.car-image:hover {
+    opacity: 0.9;
 }
 
 .card-title {
     color: #0366B1;
     font-weight: 300;
+    transition: color 0.3s ease;
 }
 
 .btn-primary {
     background-color: #0366B1 !important;
     border-color: #0366B1 !important;
     color: #FFFFFF !important;
+    transition: all 0.3s ease !important;
+    transform: translateY(0);
 }
 
 .btn-primary:hover {
     background-color: #024d8c !important;
     border-color: #024d8c !important;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 4px rgba(3, 102, 177, 0.2);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
 }
 
 /* Filter styles */
@@ -86,6 +105,18 @@ body {
 
 .form-label {
     color: #000000;
+    font-weight: 300;
+    margin-bottom: 0.5rem;
+}
+
+.form-control, .form-select {
+    border-color: #E5E5E5;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #0366B1;
+    box-shadow: 0 0 0 0.2rem rgba(3, 102, 177, 0.1);
 }
 
 /* Loading state */
@@ -152,31 +183,23 @@ body {
     }
 }
 
-.card-img-top {
-    height: 200px;
-    object-fit: cover;
+/* Animation keyframes */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
-.car-details {
-    margin-top: 1rem;
+.car-card {
+    animation: fadeIn 0.5s ease-out;
 }
 
-.car-details p {
-    margin-bottom: 0.5rem;
-}
-
-#searchInput {
-    max-width: 500px;
-}
-
-.card {
-    transition: transform 0.2s;
-}
-
-.card:hover {
-    transform: translateY(-5px);
-}
-
-.btn-primary {
-    margin-right: 0.5rem;
+/* Loading spinner animation */
+.spinner-border {
+    color: #0366B1;
 }
