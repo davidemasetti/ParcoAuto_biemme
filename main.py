@@ -73,7 +73,18 @@ def get_cars():
         if transmission:
             query = query.filter(Car.transmission.ilike(f"%{transmission}%"))
         if body_type:
-            query = query.filter(Car.body_type.ilike(f"%{body_type}%"))
+            if body_type == "4/5 Porte":
+                query = query.filter(or_(
+                    Car.body_type.ilike("%4/5 Porte%"),
+                    Car.body_type.ilike("%4/5-Porte%")
+                ))
+            elif body_type == "2/3 Porte":
+                query = query.filter(or_(
+                    Car.body_type.ilike("%2/3 Porte%"),
+                    Car.body_type.ilike("%2/3-Porte%")
+                ))
+            else:
+                query = query.filter(Car.body_type.ilike(f"%{body_type}%"))
         if color:
             query = query.filter(Car.color.ilike(f"%{color}%"))
 
