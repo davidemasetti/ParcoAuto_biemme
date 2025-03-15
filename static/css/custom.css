@@ -152,8 +152,9 @@ body {
 
 #carPrice {
     font-size: 2rem;
-    font-weight: bold;
-    color: #0366B1;
+    font-weight: 300;
+    font-family: 'BMWTypeNext', sans-serif;
+    color: #000000;
 }
 
 #carDescription {
