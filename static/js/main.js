@@ -99,14 +99,9 @@ document.addEventListener('DOMContentLoaded', function() {
                                             <h4 class="card-title">${car.title}</h4>
                                             <div class="d-flex justify-content-between align-items-center mb-3">
                                                 <h3 class="text-primary mb-0">€ ${car.price.toLocaleString()}</h3>
-                                                <div>
-                                                    <a href="/car/${car.id}" class="btn btn-primary me-2">
-                                                        <i class="fas fa-info-circle"></i> Dettagli
-                                                    </a>
-                                                    <a href="/compare?car=${car.id}" class="btn btn-outline-primary">
-                                                        <i class="fas fa-exchange-alt"></i>
-                                                    </a>
-                                                </div>
+                                                <a href="/car/${car.id}" class="btn btn-primary">
+                                                    <i class="fas fa-info-circle"></i> Dettagli
+                                                </a>
                                             </div>
                                             <div class="row">
                                                 <div class="col-sm-6">

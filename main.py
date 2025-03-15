@@ -264,9 +264,5 @@ def import_xml():
         logger.error(f"Unexpected error: {e}")
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
 
-@app.route('/compare')
-def compare():
-    return render_template("compare.html")
-
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
