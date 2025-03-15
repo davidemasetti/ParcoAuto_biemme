@@ -68,6 +68,13 @@ body {
     transition: color 0.3s ease;
 }
 
+/* Price styles */
+.text-primary {
+    color: #000000 !important;
+    font-family: 'BMWTypeNext', sans-serif;
+    font-weight: 300;
+}
+
 .btn-primary {
     background-color: #0366B1 !important;
     border-color: #0366B1 !important;
