@@ -2,6 +2,49 @@ document.addEventListener('DOMContentLoaded', function() {
     const carGrid = document.getElementById('carGrid');
     const filterForm = document.getElementById('filterForm');
     const importButton = document.getElementById('importXML');
+    const minPriceInput = document.getElementById('minPrice');
+    const maxPriceInput = document.getElementById('maxPrice');
+    const priceMinLabel = document.getElementById('priceMin');
+    const priceMaxLabel = document.getElementById('priceMax');
+
+    // Initialize price slider
+    const priceSlider = document.getElementById('priceSlider');
+    if (priceSlider) {
+        noUiSlider.create(priceSlider, {
+            start: [0, 100000],
+            connect: true,
+            range: {
+                'min': 0,
+                'max': 100000
+            },
+            step: 1000,
+            format: {
+                to: function(value) {
+                    return Math.round(value);
+                },
+                from: function(value) {
+                    return Number(value);
+                }
+            }
+        });
+
+        // Update hidden inputs and labels when slider changes
+        priceSlider.noUiSlider.on('update', function(values, handle) {
+            const value = values[handle];
+            if (handle === 0) {
+                minPriceInput.value = value;
+                priceMinLabel.textContent = `€ ${Number(value).toLocaleString()}`;
+            } else {
+                maxPriceInput.value = value;
+                priceMaxLabel.textContent = `€ ${Number(value).toLocaleString()}`;
+            }
+        });
+
+        // Trigger search when slider stops moving
+        priceSlider.noUiSlider.on('change', function() {
+            filterForm.dispatchEvent(new Event('submit'));
+        });
+    }
 
     function loadCars(filters = {}) {
         // Costruisci i parametri della query
@@ -101,8 +144,8 @@ document.addEventListener('DOMContentLoaded', function() {
     filterForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const filters = {
-            min_price: document.getElementById('minPrice').value,
-            max_price: document.getElementById('maxPrice').value,
+            min_price: minPriceInput.value,
+            max_price: maxPriceInput.value,
             min_year: document.getElementById('minYear').value,
             max_year: document.getElementById('maxYear').value,
             min_km: document.getElementById('minKm').value,
@@ -116,6 +159,9 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     filterForm.addEventListener('reset', (e) => {
+        if (priceSlider && priceSlider.noUiSlider) {
+            priceSlider.noUiSlider.reset();
+        }
         setTimeout(() => loadCars(), 0);
     });
 

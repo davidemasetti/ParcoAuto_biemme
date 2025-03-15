@@ -246,3 +246,44 @@ body {
 .spinner-border {
     color: #0366B1;
 }
+
+/* Price Slider Styles */
+.noUi-target {
+    background: #E5E5E5;
+    border: none;
+    box-shadow: none;
+    height: 4px;
+}
+
+.noUi-handle {
+    background: #0366B1;
+    border: 2px solid #FFFFFF;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(3, 102, 177, 0.2);
+    cursor: pointer;
+    height: 20px !important;
+    width: 20px !important;
+    right: -10px !important;
+    top: -8px !important;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.noUi-handle:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 8px rgba(3, 102, 177, 0.3);
+}
+
+.noUi-handle:before,
+.noUi-handle:after {
+    display: none;
+}
+
+.noUi-connect {
+    background: #0366B1;
+}
+
+.price-label {
+    color: #000000;
+    font-family: 'BMWTypeNext', sans-serif;
+    font-size: 0.9rem;
+}
