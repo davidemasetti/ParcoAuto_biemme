@@ -1,36 +1,30 @@
-.card-img-top {
-    height: 200px;
-    object-fit: cover;
-}
-
+/* Common styles */
 .navbar {
     margin-bottom: 2rem;
 }
 
-.car-details {
-    margin-top: 1rem;
-}
-
-.car-details p {
-    margin-bottom: 0.5rem;
-}
-
-#searchInput {
-    max-width: 500px;
-}
-
-.card {
+/* Car list styles */
+.car-card {
     transition: transform 0.2s;
 }
 
-.card:hover {
+.car-card:hover {
     transform: translateY(-5px);
 }
 
-.btn-primary {
-    margin-right: 0.5rem;
+.car-image {
+    height: 250px;
+    width: 100%;
+    object-fit: cover;
 }
 
+/* Filter styles */
+.sticky-top {
+    z-index: 100;
+    top: 1rem;
+}
+
+/* Loading state */
 .loading {
     opacity: 0.5;
     pointer-events: none;
@@ -67,4 +61,48 @@
 #carDescription {
     white-space: pre-line;
     line-height: 1.6;
+}
+
+/* Responsive styles */
+@media (max-width: 991.98px) {
+    .sticky-top {
+        position: relative !important;
+        top: 0 !important;
+        margin-bottom: 2rem;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .car-image {
+        height: 200px;
+    }
+}
+
+.card-img-top {
+    height: 200px;
+    object-fit: cover;
+}
+
+.car-details {
+    margin-top: 1rem;
+}
+
+.car-details p {
+    margin-bottom: 0.5rem;
+}
+
+#searchInput {
+    max-width: 500px;
+}
+
+.card {
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.btn-primary {
+    margin-right: 0.5rem;
 }

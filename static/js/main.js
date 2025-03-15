@@ -15,31 +15,55 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         // Mostra indicatore di caricamento
-        carGrid.innerHTML = '<div class="col-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Caricamento...</span></div></div>';
+        carGrid.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Caricamento...</span></div></div>';
 
         fetch(`/api/cars/?${params.toString()}`)
             .then(response => response.json())
             .then(cars => {
                 carGrid.innerHTML = '';
                 if (cars.length === 0) {
-                    carGrid.innerHTML = '<div class="col-12"><div class="alert alert-info">Nessuna auto trovata con i filtri selezionati.</div></div>';
+                    carGrid.innerHTML = '<div class="alert alert-info">Nessuna auto trovata con i filtri selezionati.</div>';
                     return;
                 }
                 cars.forEach(car => {
                     const card = document.createElement('div');
-                    card.className = 'col-md-4 mb-4';
+                    card.className = 'car-card mb-4';
                     card.innerHTML = `
-                        <div class="card h-100">
-                            <img src="${car.image}" class="card-img-top" alt="${car.title}" onerror="this.src='/static/img/no-image.svg'">
-                            <div class="card-body">
-                                <h5 class="card-title">${car.title}</h5>
-                                <p class="card-text">
-                                    <strong>Prezzo:</strong> €${car.price.toLocaleString()}<br>
-                                    <strong>Anno:</strong> ${car.year}<br>
-                                    <strong>KM:</strong> ${car.km.toLocaleString()}<br>
-                                    <strong>Carburante:</strong> ${car.fuel_type}
-                                </p>
-                                <a href="/car/${car.id}" class="btn btn-primary">Dettagli</a>
+                        <div class="card">
+                            <div class="row g-0">
+                                <div class="col-md-4">
+                                    <img src="${car.image}" class="img-fluid rounded-start car-image" 
+                                         alt="${car.title}" onerror="this.src='/static/img/no-image.svg'">
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="card-body">
+                                        <h4 class="card-title">${car.title}</h4>
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <h3 class="text-primary mb-0">€ ${car.price.toLocaleString()}</h3>
+                                            <a href="/car/${car.id}" class="btn btn-primary">
+                                                <i class="fas fa-info-circle"></i> Dettagli
+                                            </a>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                                <p class="mb-1">
+                                                    <i class="fas fa-calendar"></i> Anno: ${car.year}
+                                                </p>
+                                                <p class="mb-1">
+                                                    <i class="fas fa-road"></i> Km: ${car.km.toLocaleString()}
+                                                </p>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <p class="mb-1">
+                                                    <i class="fas fa-gas-pump"></i> ${car.fuel_type}
+                                                </p>
+                                                <p class="mb-1">
+                                                    <i class="fas fa-cog"></i> ${car.transmission}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     `;
@@ -48,7 +72,7 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .catch(error => {
                 console.error('Error loading cars:', error);
-                carGrid.innerHTML = '<div class="col-12"><div class="alert alert-danger">Errore nel caricamento delle auto. Riprova più tardi.</div></div>';
+                carGrid.innerHTML = '<div class="alert alert-danger">Errore nel caricamento delle auto. Riprova più tardi.</div>';
             });
     }
 
