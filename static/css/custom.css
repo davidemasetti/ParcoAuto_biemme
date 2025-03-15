@@ -75,6 +75,7 @@ body {
     font-weight: 300;
 }
 
+/*  Button styles - Overridden by edited snippet */
 .btn-primary {
     background-color: #0366B1 !important;
     border-color: #0366B1 !important;
@@ -137,17 +138,20 @@ body {
     max-height: 400px;
     width: 100%;
     object-fit: cover;
+    transition: transform 0.3s ease;
 }
 
 #imageGallery img {
     height: 100px;
     object-fit: cover;
     cursor: pointer;
-    transition: opacity 0.2s;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
 }
 
 #imageGallery img:hover {
-    opacity: 0.8;
+    transform: scale(1.05);
+    border-color: #0366B1;
 }
 
 .badge {
@@ -155,19 +159,19 @@ body {
     padding: 0.5rem 1rem;
     background-color: #F8F9FA;
     color: #000000;
+    transition: all 0.3s ease;
 }
 
-#carPrice {
-    font-size: 2rem;
-    font-weight: 300;
-    font-family: 'BMWTypeNext', sans-serif;
-    color: #000000;
+.badge:hover {
+    background-color: #0366B1;
+    color: #FFFFFF;
+    transform: translateY(-2px);
 }
 
-#carDescription {
-    white-space: pre-line;
-    line-height: 1.6;
+.cursor-pointer {
+    cursor: pointer;
 }
+
 
 /* Override Bootstrap dark theme */
 [data-bs-theme=dark] {
@@ -203,11 +207,42 @@ body {
     }
 }
 
-.car-card {
-    animation: fadeIn 0.5s ease-out;
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
 }
 
-/* Loading spinner animation */
+.car-details {
+    animation: slideIn 0.3s ease-out;
+}
+
+#carOptions .badge {
+    animation: fadeIn 0.3s ease-out;
+    animation-fill-mode: both;
+}
+
+#carOptions .badge:nth-child(n) {
+    animation-delay: calc(0.1s * var(--badge-index, 0));
+}
+
+#carPrice {
+    font-size: 2rem;
+    font-weight: 300;
+    font-family: 'BMWTypeNext', sans-serif;
+    color: #000000;
+}
+
+#carDescription {
+    white-space: pre-line;
+    line-height: 1.6;
+}
+
 .spinner-border {
     color: #0366B1;
 }

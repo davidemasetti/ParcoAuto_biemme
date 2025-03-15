@@ -35,7 +35,7 @@
                         <h2 class="card-title" id="carTitle"></h2>
                         <h3 class="text-primary mb-4" id="carPrice"></h3>
 
-                        <div class="row">
+                        <div class="row car-details">
                             <div class="col-6">
                                 <p><strong>Anno:</strong> <span id="carYear"></span></p>
                                 <p><strong>Chilometraggio:</strong> <span id="carKm"></span> km</p>
@@ -72,10 +72,8 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Get car ID from URL
             const carId = window.location.pathname.split('/').pop();
 
-            // Fetch car details
             fetch(`/api/cars/${carId}`)
                 .then(response => {
                     if (!response.ok) {
@@ -87,7 +85,6 @@
                     return response.json();
                 })
                 .then(car => {
-                    // Set car details
                     document.getElementById('carTitle').textContent = car.title;
                     document.getElementById('carPrice').textContent = `€ ${car.price.toLocaleString()}`;
                     document.getElementById('carYear').textContent = car.year;
@@ -97,33 +94,29 @@
                     document.getElementById('carBody').textContent = car.body_type;
                     document.getElementById('carColor').textContent = car.color;
 
-                    // Set description if not empty
                     if (car.description && car.description.trim() !== '') {
                         document.getElementById('carDescription').textContent = car.description;
                         document.getElementById('additionalInfoSection').style.display = 'block';
                     }
 
-                    // Set main image
                     const mainImage = document.getElementById('mainImage');
                     mainImage.src = car.image || '/static/img/no-image.svg';
                     mainImage.alt = car.title;
 
-                    // Load gallery images
                     const gallery = document.getElementById('imageGallery');
                     const images = JSON.parse(car.images || '[]');
                     gallery.innerHTML = images.map(img => `
                         <div class="col-4 mb-3">
                             <img src="${img}" class="img-fluid rounded cursor-pointer" 
-                                onclick="document.getElementById('mainImage').src = '${img}'"
+                                onclick="changeMainImage('${img}')"
                                 alt="Gallery image">
                         </div>
                     `).join('');
 
-                    // Load options
                     const optionsContainer = document.getElementById('carOptions');
                     const options = JSON.parse(car.options || '[]');
-                    optionsContainer.innerHTML = options.map(opt => `
-                        <span class="badge bg-secondary me-2 mb-2">${opt}</span>
+                    optionsContainer.innerHTML = options.map((opt, index) => `
+                        <span class="badge bg-secondary me-2 mb-2" style="--badge-index: ${index}">${opt}</span>
                     `).join('');
                 })
                 .catch(error => {
@@ -140,6 +133,15 @@
                     `;
                 });
         });
+
+        function changeMainImage(src) {
+            const mainImage = document.getElementById('mainImage');
+            mainImage.style.opacity = '0';
+            setTimeout(() => {
+                mainImage.src = src;
+                mainImage.style.opacity = '1';
+            }, 300);
+        }
     </script>
 </body>
 </html>
