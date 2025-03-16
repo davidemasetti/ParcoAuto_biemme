@@ -1,12 +1,13 @@
 import logging
 import json
 import os
-from flask import render_template, jsonify, request
+from flask import render_template, jsonify, request, redirect, url_for, flash
 from sqlalchemy import or_
 import xml.etree.ElementTree as ET
 import requests
+from flask_login import LoginManager, login_user, login_required, current_user
 from app import create_app, db
-from models import Car, Contact
+from models import Car, Contact, User
 from scheduler import init_scheduler
 
 # Configure logging
@@ -17,9 +18,73 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 app = create_app()
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
 
 # Initialize scheduler in non-blocking way
 scheduler_thread = init_scheduler()
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        user = User.query.filter_by(username=username).first()
+
+        if user and user.check_password(password):
+            login_user(user)
+            return redirect(url_for('dashboard'))
+
+        flash('Invalid username or password')
+        return redirect(url_for('login'))
+
+    return render_template('login.html')
+
+@app.route('/dashboard')
+@login_required
+def dashboard():
+    return render_template('dashboard.html')
+
+@app.route('/api/cars/manual', methods=['POST'])
+@login_required
+def create_car():
+    try:
+        data = request.get_json()
+        new_car = Car(
+            title=data['title'],
+            price=float(data['price']),
+            year=int(data['year']),
+            km=int(data['km']),
+            fuel_type=data['fuel_type'],
+            transmission=data['transmission'],
+            body_type=data['body_type'],
+            registration_date=data['registration_date'],
+            engine_power=data['engine_power'],
+            seats=int(data['seats']),
+            doors=int(data['doors']),
+            color=data['color'],
+            condition=data['condition'],
+            options=json.dumps(data.get('options', [])),
+            description=data['description'],
+            manual_entry=True,
+            image=data.get('image', ''),
+            images=json.dumps(data.get('images', []))
+        )
+
+        db.session.add(new_car)
+        db.session.commit()
+
+        return jsonify({"message": "Auto aggiunta con successo", "id": new_car.id}), 201
+
+    except Exception as e:
+        logger.error(f"Error creating car: {e}")
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/')
 def home():
@@ -27,7 +92,6 @@ def home():
 
 @app.route('/car/<int:car_id>')
 def car_detail(car_id):
-    # Verifica se l'auto esiste
     car = Car.query.get(car_id)
     if car is None:
         return render_template("404.html"), 404
@@ -40,7 +104,6 @@ def create_contact():
         if not all(key in data for key in ['nome', 'telefono', 'messaggio', 'auto_id']):
             return jsonify({"error": "Dati mancanti"}), 400
 
-        # Verifica se l'auto esiste
         car = Car.query.get(data['auto_id'])
         if not car:
             return jsonify({"error": "Auto non trovata"}), 404
@@ -184,12 +247,12 @@ def import_xml():
         imported_count = 0
         errors_count = 0
 
+        # Delete only non-manual cars before import
+        Car.query.filter_by(manual_entry=False).delete()
+        db.session.commit() #added commit here to clear before import
+
         for car_elem in root.findall(".//car"):
             try:
-                # Log raw XML data for debugging
-                car_xml = ET.tostring(car_elem, encoding='unicode')
-                logger.debug(f"Processing car XML: {car_xml}")
-
                 # Extract images
                 images = []
                 for img in car_elem.findall("images/image"):
@@ -264,7 +327,8 @@ def import_xml():
                     color=car_elem.find("exterior/color").text if car_elem.find("exterior/color") is not None else "",
                     condition=car_elem.find("usage").text if car_elem.find("usage") is not None else "",
                     options=json.dumps(options),
-                    description=car_elem.find("formatted_additional_informations").text if car_elem.find("formatted_additional_informations") is not None else ""
+                    description=car_elem.find("formatted_additional_informations").text if car_elem.find("formatted_additional_informations") is not None else "",
+                    manual_entry=False
                 )
 
                 logger.info(f"Importing car: {new_car.title} (Year: {new_car.year}, Price: {new_car.price})")
