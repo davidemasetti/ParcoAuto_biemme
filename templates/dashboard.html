@@ -19,6 +19,32 @@
     </nav>
 
     <div class="container mt-4">
+        <!-- Lista Auto Manuali -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <h2 class="card-title mb-4">
+                    <i class="fas fa-list"></i> Auto Inserite Manualmente
+                </h2>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Titolo</th>
+                                <th>Prezzo</th>
+                                <th>Anno</th>
+                                <th>Km</th>
+                                <th>Azioni</th>
+                            </tr>
+                        </thead>
+                        <tbody id="manualCarsList">
+                            <!-- Le auto verranno caricate qui -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Aggiungi Auto -->
         <div class="card">
             <div class="card-body">
                 <h2 class="card-title mb-4">
@@ -132,6 +158,51 @@
         document.addEventListener('DOMContentLoaded', function() {
             const form = document.getElementById('newCarForm');
             const successMessage = document.getElementById('successMessage');
+            const manualCarsList = document.getElementById('manualCarsList');
+
+            // Carica le auto manuali
+            function loadManualCars() {
+                fetch('/api/cars/manual')
+                    .then(response => response.json())
+                    .then(cars => {
+                        manualCarsList.innerHTML = cars.map(car => `
+                            <tr>
+                                <td>${car.title}</td>
+                                <td>€ ${car.price.toLocaleString()}</td>
+                                <td>${car.year}</td>
+                                <td>${car.km.toLocaleString()}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-danger" onclick="deleteCar(${car.id})">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        `).join('');
+                    })
+                    .catch(error => {
+                        console.error('Error loading manual cars:', error);
+                    });
+            }
+
+            // Carica le auto al caricamento della pagina
+            loadManualCars();
+
+            // Elimina un'auto
+            window.deleteCar = function(carId) {
+                if (confirm('Sei sicuro di voler eliminare questa auto?')) {
+                    fetch(`/api/cars/${carId}`, {
+                        method: 'DELETE'
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        loadManualCars(); // Ricarica la lista
+                    })
+                    .catch(error => {
+                        console.error('Error deleting car:', error);
+                        alert('Errore durante l\'eliminazione dell\'auto');
+                    });
+                }
+            };
 
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
@@ -163,6 +234,7 @@
                     setTimeout(() => {
                         successMessage.style.display = 'none';
                     }, 5000);
+                    loadManualCars(); // Ricarica la lista dopo l'aggiunta
                 })
                 .catch(error => {
                     console.error('Error:', error);

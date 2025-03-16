@@ -421,5 +421,59 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 
+@app.route('/api/cars/manual', methods=['GET'])
+@login_required
+def get_manual_cars():
+    try:
+        cars = Car.query.filter_by(manual_entry=True).all()
+        return jsonify([{
+            'id': car.id,
+            'title': car.title,
+            'price': car.price,
+            'year': car.year,
+            'km': car.km,
+            'image': car.image
+        } for car in cars])
+    except Exception as e:
+        logger.error(f"Error getting manual cars: {e}")
+        return jsonify({"error": "Error retrieving manual cars"}), 500
+
+@app.route('/api/cars/<int:car_id>', methods=['DELETE'])
+@login_required
+def delete_car(car_id):
+    try:
+        car = Car.query.get_or_404(car_id)
+
+        # Verifica che l'auto sia stata inserita manualmente
+        if not car.manual_entry:
+            return jsonify({"error": "Non puoi eliminare un'auto importata da XML"}), 403
+
+        # Elimina le immagini dal filesystem
+        if car.image and car.image.startswith('/static/uploads/'):
+            try:
+                os.remove(car.image.lstrip('/'))
+            except OSError:
+                logger.warning(f"Could not delete image file: {car.image}")
+
+        if car.images:
+            try:
+                gallery_images = json.loads(car.images)
+                for img in gallery_images:
+                    if img.startswith('/static/uploads/'):
+                        try:
+                            os.remove(img.lstrip('/'))
+                        except OSError:
+                            logger.warning(f"Could not delete gallery image file: {img}")
+            except json.JSONDecodeError:
+                logger.warning(f"Could not parse gallery images JSON for car {car_id}")
+
+        db.session.delete(car)
+        db.session.commit()
+        return jsonify({"message": "Auto eliminata con successo"})
+    except Exception as e:
+        logger.error(f"Error deleting car {car_id}: {e}")
+        db.session.rollback()
+        return jsonify({"error": "Errore durante l'eliminazione dell'auto"}), 500
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
