@@ -47,9 +47,15 @@ def save_uploaded_file(file):
 @login_required
 def create_car():
     try:
+        # Debug logging
+        logger.info("Received form data:")
+        logger.info(f"Form data: {request.form}")
+        logger.info(f"Files: {request.files}")
+
         # Handle main image
         main_image = request.files.get('image')
         main_image_path = save_uploaded_file(main_image) if main_image else ''
+        logger.info(f"Main image path: {main_image_path}")
 
         # Handle gallery images
         gallery_images = request.files.getlist('gallery_images')
@@ -58,25 +64,42 @@ def create_car():
             path = save_uploaded_file(image)
             if path:
                 gallery_paths.append(path)
+        logger.info(f"Gallery paths: {gallery_paths}")
 
         # Get other form data
         data = request.form
+        try:
+            price = float(data['price']) if data['price'] else 0.0
+            year = int(data['year']) if data['year'] else 0
+            km = int(data['km']) if data['km'] else 0
+            seats = int(data['seats']) if data['seats'] else 0
+            doors = int(data['doors']) if data['doors'] else 0
+        except (ValueError, KeyError) as e:
+            logger.error(f"Error converting numeric values: {e}")
+            return jsonify({"error": "Errore nei valori numerici"}), 400
+
+        # Parse options
+        options = data.getlist('options[]') if 'options[]' in data else []
+        if not options and 'options' in data:
+            options = [opt.strip() for opt in data['options'].split('\n') if opt.strip()]
+        logger.info(f"Parsed options: {options}")
+
         new_car = Car(
             title=data['title'],
-            price=float(data['price']),
-            year=int(data['year']),
-            km=int(data['km']),
+            price=price,
+            year=year,
+            km=km,
             fuel_type=data['fuel_type'],
             transmission=data['transmission'],
             body_type=data['body_type'],
-            registration_date=data['registration_date'],
-            engine_power=data['engine_power'],
-            seats=int(data['seats']) if data['seats'] else 0,
-            doors=int(data['doors']) if data['doors'] else 0,
-            color=data['color'],
-            condition=data['condition'],
-            options=json.dumps(data.getlist('options[]')),
-            description=data['description'],
+            registration_date=data.get('registration_date', ''),
+            engine_power=data.get('engine_power', ''),
+            seats=seats,
+            doors=doors,
+            color=data.get('color', ''),
+            condition=data.get('condition', 'Usato'),
+            options=json.dumps(options),
+            description=data.get('description', ''),
             manual_entry=True,
             image=main_image_path,
             images=json.dumps(gallery_paths)
@@ -84,6 +107,7 @@ def create_car():
 
         db.session.add(new_car)
         db.session.commit()
+        logger.info(f"Successfully created car with ID: {new_car.id}")
 
         return jsonify({"message": "Auto aggiunta con successo", "id": new_car.id}), 201
 
