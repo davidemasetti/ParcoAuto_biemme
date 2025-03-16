@@ -21,3 +21,13 @@ class Car(db.Model):
     condition = db.Column(db.String(50))
     options = db.Column(db.String(4096))  # JSON list of options
     description = db.Column(db.String(4096))
+
+class Contact(db.Model):
+    __tablename__ = "contacts"
+
+    id = db.Column(db.Integer, primary_key=True, index=True)
+    nome = db.Column(db.String(100), nullable=False)
+    telefono = db.Column(db.String(20), nullable=False)
+    messaggio = db.Column(db.Text, nullable=False)
+    auto_id = db.Column(db.Integer, db.ForeignKey('cars.id'), nullable=False)
+    created_at = db.Column(db.DateTime, server_default=db.func.now())

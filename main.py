@@ -6,7 +6,7 @@ from sqlalchemy import or_
 import xml.etree.ElementTree as ET
 import requests
 from app import create_app, db
-from models import Car
+from models import Car, Contact
 from scheduler import init_scheduler
 
 # Configure logging
@@ -32,6 +32,35 @@ def car_detail(car_id):
     if car is None:
         return render_template("404.html"), 404
     return render_template("car_detail.html", car_id=car_id)
+
+@app.route('/api/contacts/', methods=['POST'])
+def create_contact():
+    try:
+        data = request.get_json()
+        if not all(key in data for key in ['nome', 'telefono', 'messaggio', 'auto_id']):
+            return jsonify({"error": "Dati mancanti"}), 400
+
+        # Verifica se l'auto esiste
+        car = Car.query.get(data['auto_id'])
+        if not car:
+            return jsonify({"error": "Auto non trovata"}), 404
+
+        new_contact = Contact(
+            nome=data['nome'],
+            telefono=data['telefono'],
+            messaggio=data['messaggio'],
+            auto_id=data['auto_id']
+        )
+
+        db.session.add(new_contact)
+        db.session.commit()
+
+        return jsonify({"message": "Richiesta inviata con successo"}), 201
+
+    except Exception as e:
+        logger.error(f"Error creating contact: {e}")
+        db.session.rollback()
+        return jsonify({"error": "Errore durante l'invio della richiesta"}), 500
 
 @app.route('/api/cars/')
 def get_cars():
