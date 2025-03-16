@@ -34,11 +34,19 @@ def login():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
-        user = User.query.filter_by(username=username).first()
+        logger.info(f"Login attempt for username: {username}")
 
-        if user and user.check_password(password):
-            login_user(user)
-            return redirect(url_for('dashboard'))
+        user = User.query.filter_by(username=username).first()
+        if user:
+            logger.info("User found in database")
+            if user.check_password(password):
+                logger.info("Password check successful")
+                login_user(user)
+                return redirect(url_for('dashboard'))
+            else:
+                logger.warning("Password check failed")
+        else:
+            logger.warning(f"No user found with username: {username}")
 
         flash('Invalid username or password')
         return redirect(url_for('login'))
