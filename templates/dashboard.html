@@ -25,7 +25,7 @@
                     <i class="fas fa-plus-circle"></i> Aggiungi Nuova Auto
                 </h2>
 
-                <form id="newCarForm" class="needs-validation" novalidate>
+                <form id="newCarForm" class="needs-validation" novalidate enctype="multipart/form-data">
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="title" class="form-label">Titolo *</label>
@@ -94,12 +94,16 @@
                             <input type="text" class="form-control" id="color" name="color">
                         </div>
                         <div class="col-md-12 mb-3">
-                            <label for="image" class="form-label">URL Immagine Principale</label>
-                            <input type="text" class="form-control" id="image" name="image">
+                            <label for="image" class="form-label">Immagine Principale *</label>
+                            <input type="file" class="form-control" id="image" name="image" accept="image/*" required>
+                            <div class="invalid-feedback">
+                                Seleziona un'immagine principale
+                            </div>
                         </div>
                         <div class="col-md-12 mb-3">
-                            <label for="images" class="form-label">URL Immagini Galleria (una per riga)</label>
-                            <textarea class="form-control" id="images" name="images" rows="3"></textarea>
+                            <label for="gallery_images" class="form-label">Immagini Galleria</label>
+                            <input type="file" class="form-control" id="gallery_images" name="gallery_images" accept="image/*" multiple>
+                            <div class="form-text">Puoi selezionare più immagini contemporaneamente</div>
                         </div>
                         <div class="col-md-12 mb-3">
                             <label for="options" class="form-label">Opzioni (una per riga)</label>
@@ -138,32 +142,18 @@
                     return;
                 }
 
-                const formData = {
-                    title: document.getElementById('title').value,
-                    price: parseFloat(document.getElementById('price').value),
-                    year: parseInt(document.getElementById('year').value),
-                    km: parseInt(document.getElementById('km').value),
-                    fuel_type: document.getElementById('fuel_type').value,
-                    transmission: document.getElementById('transmission').value,
-                    body_type: document.getElementById('body_type').value,
-                    registration_date: document.getElementById('registration_date').value,
-                    engine_power: document.getElementById('engine_power').value,
-                    seats: parseInt(document.getElementById('seats').value) || 0,
-                    doors: parseInt(document.getElementById('doors').value) || 0,
-                    color: document.getElementById('color').value,
-                    condition: 'Usato',
-                    image: document.getElementById('image').value,
-                    images: document.getElementById('images').value.split('\n').filter(url => url.trim()),
-                    options: document.getElementById('options').value.split('\n').filter(opt => opt.trim()),
-                    description: document.getElementById('description').value
-                };
+                const formData = new FormData(form);
+
+                // Handle options list
+                const options = document.getElementById('options').value
+                    .split('\n')
+                    .filter(opt => opt.trim());
+                formData.delete('options');
+                options.forEach(opt => formData.append('options[]', opt.trim()));
 
                 fetch('/api/cars/manual', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(formData)
+                    body: formData
                 })
                 .then(response => response.json())
                 .then(data => {

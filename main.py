@@ -2,6 +2,7 @@ import logging
 import json
 import os
 from flask import render_template, jsonify, request, redirect, url_for, flash
+from werkzeug.utils import secure_filename
 from sqlalchemy import or_
 import xml.etree.ElementTree as ET
 import requests
@@ -22,12 +23,74 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
-# Initialize scheduler in non-blocking way
-scheduler_thread = init_scheduler()
+# Configure upload settings
+UPLOAD_FOLDER = 'static/uploads'
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
-@login_manager.user_loader
-def load_user(user_id):
-    return User.query.get(int(user_id))
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+# Ensure upload directory exists
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def save_uploaded_file(file):
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(filepath)
+        return f'/static/uploads/{filename}'
+    return None
+
+@app.route('/api/cars/manual', methods=['POST'])
+@login_required
+def create_car():
+    try:
+        # Handle main image
+        main_image = request.files.get('image')
+        main_image_path = save_uploaded_file(main_image) if main_image else ''
+
+        # Handle gallery images
+        gallery_images = request.files.getlist('gallery_images')
+        gallery_paths = []
+        for image in gallery_images:
+            path = save_uploaded_file(image)
+            if path:
+                gallery_paths.append(path)
+
+        # Get other form data
+        data = request.form
+        new_car = Car(
+            title=data['title'],
+            price=float(data['price']),
+            year=int(data['year']),
+            km=int(data['km']),
+            fuel_type=data['fuel_type'],
+            transmission=data['transmission'],
+            body_type=data['body_type'],
+            registration_date=data['registration_date'],
+            engine_power=data['engine_power'],
+            seats=int(data['seats']) if data['seats'] else 0,
+            doors=int(data['doors']) if data['doors'] else 0,
+            color=data['color'],
+            condition=data['condition'],
+            options=json.dumps(data.getlist('options[]')),
+            description=data['description'],
+            manual_entry=True,
+            image=main_image_path,
+            images=json.dumps(gallery_paths)
+        )
+
+        db.session.add(new_car)
+        db.session.commit()
+
+        return jsonify({"message": "Auto aggiunta con successo", "id": new_car.id}), 201
+
+    except Exception as e:
+        logger.error(f"Error creating car: {e}")
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -57,42 +120,6 @@ def login():
 @login_required
 def dashboard():
     return render_template('dashboard.html')
-
-@app.route('/api/cars/manual', methods=['POST'])
-@login_required
-def create_car():
-    try:
-        data = request.get_json()
-        new_car = Car(
-            title=data['title'],
-            price=float(data['price']),
-            year=int(data['year']),
-            km=int(data['km']),
-            fuel_type=data['fuel_type'],
-            transmission=data['transmission'],
-            body_type=data['body_type'],
-            registration_date=data['registration_date'],
-            engine_power=data['engine_power'],
-            seats=int(data['seats']),
-            doors=int(data['doors']),
-            color=data['color'],
-            condition=data['condition'],
-            options=json.dumps(data.get('options', [])),
-            description=data['description'],
-            manual_entry=True,
-            image=data.get('image', ''),
-            images=json.dumps(data.get('images', []))
-        )
-
-        db.session.add(new_car)
-        db.session.commit()
-
-        return jsonify({"message": "Auto aggiunta con successo", "id": new_car.id}), 201
-
-    except Exception as e:
-        logger.error(f"Error creating car: {e}")
-        db.session.rollback()
-        return jsonify({"error": str(e)}), 500
 
 @app.route('/')
 def home():
@@ -364,6 +391,11 @@ def import_xml():
     except Exception as e:
         logger.error(f"Unexpected error: {e}")
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
