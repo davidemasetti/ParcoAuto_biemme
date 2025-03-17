@@ -52,6 +52,7 @@
                 </h2>
 
                 <form id="newCarForm" class="needs-validation" novalidate enctype="multipart/form-data">
+                    <input type="hidden" id="carId" name="carId">
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="title" class="form-label">Titolo *</label>
@@ -172,6 +173,9 @@
                                 <td>${car.year}</td>
                                 <td>${car.km.toLocaleString()}</td>
                                 <td>
+                                    <button class="btn btn-sm btn-primary me-2" onclick="editCar(${car.id})">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
                                     <button class="btn btn-sm btn-danger" onclick="deleteCar(${car.id})">
                                         <i class="fas fa-trash"></i>
                                     </button>
@@ -186,6 +190,40 @@
 
             // Carica le auto al caricamento della pagina
             loadManualCars();
+
+            // Modifica un'auto
+            window.editCar = function(carId) {
+                fetch(`/api/cars/${carId}`)
+                    .then(response => response.json())
+                    .then(car => {
+                        // Popola il form con i dati dell'auto
+                        document.getElementById('carId').value = car.id;
+                        document.getElementById('title').value = car.title;
+                        document.getElementById('price').value = car.price;
+                        document.getElementById('year').value = car.year;
+                        document.getElementById('km').value = car.km;
+                        document.getElementById('fuel_type').value = car.fuel_type;
+                        document.getElementById('transmission').value = car.transmission;
+                        document.getElementById('body_type').value = car.body_type;
+                        document.getElementById('registration_date').value = car.registration_date;
+                        document.getElementById('engine_power').value = car.engine_power;
+                        document.getElementById('seats').value = car.seats;
+                        document.getElementById('doors').value = car.doors;
+                        document.getElementById('color').value = car.color;
+                        document.getElementById('options').value = JSON.parse(car.options || '[]').join('\n');
+                        document.getElementById('description').value = car.description;
+
+                        // Rendi l'immagine principale opzionale durante la modifica
+                        document.getElementById('image').removeAttribute('required');
+
+                        // Scorri fino al form
+                        form.scrollIntoView({ behavior: 'smooth' });
+                    })
+                    .catch(error => {
+                        console.error('Error loading car details:', error);
+                        alert('Errore nel caricamento dei dettagli dell\'auto');
+                    });
+            };
 
             // Elimina un'auto
             window.deleteCar = function(carId) {
@@ -214,6 +252,7 @@
                 }
 
                 const formData = new FormData(form);
+                const carId = document.getElementById('carId').value;
 
                 // Handle options list
                 const options = document.getElementById('options').value
@@ -222,19 +261,25 @@
                 formData.delete('options');
                 options.forEach(opt => formData.append('options[]', opt.trim()));
 
-                fetch('/api/cars/manual', {
-                    method: 'POST',
+                // Determine if we're creating or updating
+                const method = carId ? 'PUT' : 'POST';
+                const url = carId ? `/api/cars/${carId}` : '/api/cars/manual';
+
+                fetch(url, {
+                    method: method,
                     body: formData
                 })
                 .then(response => response.json())
                 .then(data => {
                     form.reset();
+                    document.getElementById('carId').value = '';
+                    document.getElementById('image').setAttribute('required', '');
                     form.classList.remove('was-validated');
                     successMessage.style.display = 'block';
                     setTimeout(() => {
                         successMessage.style.display = 'none';
                     }, 5000);
-                    loadManualCars(); // Ricarica la lista dopo l'aggiunta
+                    loadManualCars(); // Ricarica la lista dopo l'aggiunta/modifica
                 })
                 .catch(error => {
                     console.error('Error:', error);

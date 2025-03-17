@@ -475,5 +475,97 @@ def delete_car(car_id):
         db.session.rollback()
         return jsonify({"error": "Errore durante l'eliminazione dell'auto"}), 500
 
+@app.route('/api/cars/<int:car_id>', methods=['PUT'])
+@login_required
+def update_car(car_id):
+    try:
+        car = Car.query.get_or_404(car_id)
+
+        # Verifica che l'auto sia stata inserita manualmente
+        if not car.manual_entry:
+            return jsonify({"error": "Non puoi modificare un'auto importata da XML"}), 403
+
+        # Handle main image
+        main_image = request.files.get('image')
+        if main_image:
+            # Delete old image if it exists and is in uploads folder
+            if car.image and car.image.startswith('/static/uploads/'):
+                try:
+                    os.remove(car.image.lstrip('/'))
+                except OSError:
+                    logger.warning(f"Could not delete old image file: {car.image}")
+
+            main_image_path = save_uploaded_file(main_image)
+            if main_image_path:
+                car.image = main_image_path
+
+        # Handle gallery images
+        gallery_images = request.files.getlist('gallery_images')
+        if gallery_images:
+            # Delete old gallery images if they exist and are in uploads folder
+            if car.images:
+                try:
+                    old_gallery = json.loads(car.images)
+                    for img in old_gallery:
+                        if img.startswith('/static/uploads/'):
+                            try:
+                                os.remove(img.lstrip('/'))
+                            except OSError:
+                                logger.warning(f"Could not delete old gallery image file: {img}")
+                except json.JSONDecodeError:
+                    logger.warning(f"Could not parse old gallery images JSON for car {car_id}")
+
+            # Save new gallery images
+            gallery_paths = []
+            for image in gallery_images:
+                path = save_uploaded_file(image)
+                if path:
+                    gallery_paths.append(path)
+            car.images = json.dumps(gallery_paths)
+
+        # Update other fields
+        data = request.form
+        try:
+            if data.get('price'):
+                car.price = float(data['price'])
+            if data.get('year'):
+                car.year = int(data['year'])
+            if data.get('km'):
+                car.km = int(data['km'])
+            if data.get('seats'):
+                car.seats = int(data['seats'])
+            if data.get('doors'):
+                car.doors = int(data['doors'])
+        except (ValueError, KeyError) as e:
+            logger.error(f"Error converting numeric values: {e}")
+            return jsonify({"error": "Errore nei valori numerici"}), 400
+
+        # Update text fields
+        car.title = data.get('title', car.title)
+        car.fuel_type = data.get('fuel_type', car.fuel_type)
+        car.transmission = data.get('transmission', car.transmission)
+        car.body_type = data.get('body_type', car.body_type)
+        car.registration_date = data.get('registration_date', car.registration_date)
+        car.engine_power = data.get('engine_power', car.engine_power)
+        car.color = data.get('color', car.color)
+
+        # Handle options
+        options = data.getlist('options[]')
+        if not options and 'options' in data:
+            options = [opt.strip() for opt in data['options'].split('\n') if opt.strip()]
+        car.options = json.dumps(options)
+
+        car.description = data.get('description', car.description)
+
+        db.session.commit()
+        logger.info(f"Successfully updated car with ID: {car.id}")
+
+        return jsonify({"message": "Auto aggiornata con successo"}), 200
+
+    except Exception as e:
+        logger.error(f"Error updating car {car_id}: {e}")
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
